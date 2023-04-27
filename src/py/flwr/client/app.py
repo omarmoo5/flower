@@ -280,7 +280,7 @@ def _get_properties(self: Client, ins: GetPropertiesIns) -> GetPropertiesRes:
 
 def _get_parameters(self: Client, ins: GetParametersIns) -> GetParametersRes:
     """Return the current local model parameters."""
-    parameters = self.numpy_client.get_parameters(config=ins.config)  # type: ignore
+    parameters = self.numpy_client.get_parameters(None)  # type: ignore
     parameters_proto = ndarrays_to_parameters(parameters)
     return GetParametersRes(
         status=Status(code=Code.OK, message="Success"), parameters=parameters_proto

@@ -43,9 +43,11 @@ from flwr.server.grpc_server.grpc_server import (
     start_grpc_server,
 )
 from flwr.server.history import History
+from flwr.server.secaggserver import SecAggServer
 from flwr.server.server import Server
 from flwr.server.state import StateFactory
 from flwr.server.strategy import FedAvg, Strategy
+from flwr.server.strategy.secagg import SecAggStrategy
 
 ADDRESS_DRIVER_API = "0.0.0.0:9091"
 ADDRESS_FLEET_API_GRPC_RERE = "0.0.0.0:9092"
@@ -198,7 +200,10 @@ def _init_defaults(
             client_manager = SimpleClientManager()
         if strategy is None:
             strategy = FedAvg()
-        server = Server(client_manager=client_manager, strategy=strategy)
+        if isinstance(strategy, SecAggStrategy):
+            server = SecAggServer(client_manager=client_manager, strategy=strategy)
+        else:
+            server = Server(client_manager=client_manager, strategy=strategy)
     elif strategy is not None:
         log(WARN, "Both server and strategy were provided, ignoring strategy")
 

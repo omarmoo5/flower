@@ -22,6 +22,7 @@ from flwr.common import serde
 from flwr.proto.transport_pb2 import ClientMessage, ServerMessage
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.grpc_server.grpc_bridge import GrpcBridge, InsWrapper, ResWrapper
+from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, ShareKeysIns, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes
 
 
 class GrpcClientProxy(ClientProxy):
@@ -124,3 +125,53 @@ class GrpcClientProxy(ClientProxy):
         client_msg: ClientMessage = res_wrapper.client_message
         disconnect = serde.disconnect_res_from_proto(client_msg.disconnect_res)
         return disconnect
+
+    def setup_param(self, setup_param_ins: SetupParamIns):
+        setup_param_msg = serde.setup_param_ins_to_proto(setup_param_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ServerMessage(sec_agg_msg=setup_param_msg)
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        setup_param_res = serde.setup_param_res_from_proto(client_msg.sec_agg_res)
+        return setup_param_res
+
+    def ask_keys(self, ask_keys_ins: AskKeysIns) -> common.AskKeysRes:
+        ask_keys_msg = serde.ask_keys_ins_to_proto(ask_keys_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ServerMessage(sec_agg_msg=ask_keys_msg)
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        ask_keys_res = serde.ask_keys_res_from_proto(client_msg.sec_agg_res)
+        return ask_keys_res
+
+    def share_keys(self, share_keys_ins: ShareKeysIns) -> ShareKeysRes:
+        share_keys_msg = serde.share_keys_ins_to_proto(share_keys_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ServerMessage(sec_agg_msg=share_keys_msg)
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        share_keys_res = serde.share_keys_res_from_proto(client_msg.sec_agg_res)
+        return share_keys_res
+
+    def ask_vectors(self, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
+        ask_vectors_msg = serde.ask_vectors_ins_to_proto(ask_vectors_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ServerMessage(sec_agg_msg=ask_vectors_msg)
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        ask_vectors_res = serde.ask_vectors_res_from_proto(client_msg.sec_agg_res)
+        return ask_vectors_res
+
+    def unmask_vectors(self, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
+        unmask_vectors_msg = serde.unmask_vectors_ins_to_proto(unmask_vectors_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ServerMessage(sec_agg_msg=unmask_vectors_msg)
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        unmask_vectors_res = serde.unmask_vectors_res_from_proto(client_msg.sec_agg_res)
+        return unmask_vectors_res
