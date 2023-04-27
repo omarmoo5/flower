@@ -12,20 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-import numpy as np
-from flwr.common.parameter import parameters_to_ndarrays, ndarrays_to_parameters
-from flwr.common.sec_agg.sec_agg_primitives import check_clipping_range
-from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, Weights
-from flwr.common.sec_agg import sec_agg_primitives
-from flwr.common.logger import log
-from logging import DEBUG, ERROR, INFO, WARNING
+import timeit
+from logging import ERROR, INFO, WARNING
 from typing import Dict, List, Tuple
+
 from flwr.common import (
     AskKeysRes,
 
-
 )
-import timeit
+from flwr.common.logger import log
+from flwr.common.parameter import ndarrays_to_parameters
+from flwr.common.sec_agg import sec_agg_primitives
+from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, \
+    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays
 
 
 def setup_param(client, setup_param_ins: SetupParamIns):
@@ -55,7 +54,7 @@ def setup_param(client, setup_param_ins: SetupParamIns):
     client.sk1_share_dict = {}
     client.shared_key_2_dict = {}
     log(INFO, "SecAgg Stage 0 Completed: Parameters Set Up")
-    total_time = total_time+timeit.default_timer()
+    total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
         f = open("log.txt", "a")
         f.write(f"Client without communication stage 0:{total_time} \n")
@@ -71,7 +70,7 @@ def ask_keys(client, ask_keys_ins: AskKeysIns) -> AskKeysRes:
     client.sk1, client.pk1 = sec_agg_primitives.generate_key_pairs()
     client.sk2, client.pk2 = sec_agg_primitives.generate_key_pairs()
     log(INFO, "SecAgg Stage 1 Completed: Created Key Pairs")
-    total_time = total_time+timeit.default_timer()
+    total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
         f = open("log.txt", "a")
         f.write(f"Client without communication stage 1:{total_time} \n")
@@ -100,7 +99,8 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
         raise Exception("Some public keys are identical")
 
     # sanity check that own public keys are correct in dict
-    if client.public_keys_dict[client.sec_agg_id].pk1 != sec_agg_primitives.public_key_to_bytes(client.pk1) or client.public_keys_dict[client.sec_agg_id].pk2 != sec_agg_primitives.public_key_to_bytes(client.pk2):
+    if client.public_keys_dict[client.sec_agg_id].pk1 != sec_agg_primitives.public_key_to_bytes(client.pk1) \
+            or client.public_keys_dict[client.sec_agg_id].pk2 != sec_agg_primitives.public_key_to_bytes(client.pk2):
         raise Exception(
             "Own public keys are displayed in dict incorrectly, should not happen!")
 
@@ -135,7 +135,7 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
             share_keys_res.share_keys_res_list.append(share_keys_packet)
 
     log(INFO, "SecAgg Stage 2 Completed: Sent Shares via Packets")
-    total_time = total_time+timeit.default_timer()
+    total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
         f = open("log.txt", "a")
         f.write(f"Client without communication stage 2:{total_time} \n")
@@ -150,7 +150,7 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     fit_ins = ask_vectors_ins.fit_ins
     available_clients: List[int] = []
 
-    if len(packet_list)+1 < client.threshold:
+    if len(packet_list) + 1 < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
 
     # decode all packets and verify all packets are valid. Save shares received
@@ -165,8 +165,8 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         shared_key = client.shared_key_2_dict[source]
         plaintext = sec_agg_primitives.decrypt(shared_key, ciphertext)
         try:
-            plaintext_source, plaintext_destination, plaintext_b_share, plaintext_sk1_share = sec_agg_primitives.share_keys_plaintext_separate(
-                plaintext)
+            plaintext_source, plaintext_destination, plaintext_b_share, plaintext_sk1_share = \
+                sec_agg_primitives.share_keys_plaintext_separate(plaintext)
         except:
             raise Exception(
                 "Decryption of ciphertext failed. Not supposed to happen")
@@ -192,13 +192,12 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         if client.sec_agg_id % 20 < client.test_dropout_value:
             log(ERROR, "Force dropout due to testing!!")
             raise Exception("Force dropout due to testing")
-        weights: Weights = sec_agg_primitives.weights_zero_generate(
-            client.test_vector_shape)
-     # IMPORTANT NEED SOME FUNCTION TO GET CORRECT WEIGHT FACTOR
+        weights: NDArrays = sec_agg_primitives.weights_zero_generate(client.test_vector_shape)
+    # IMPORTANT NEED SOME FUNCTION TO GET CORRECT WEIGHT FACTOR
     # NOW WE HARD CODE IT AS 1
     # Generally, should be fit_res.num_examples
 
-    weights_factor = client.sec_agg_id+1
+    weights_factor = client.sec_agg_id + 1
 
     # END =================================================================
 
@@ -209,7 +208,8 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     # weights factor cannoot exceed maximum
     if weights_factor > client.max_weights_factor:
         weights_factor = client.max_weights_factor
-        log(WARNING, "weights_factor exceeds allowed range and has been clipped. Either increase max_weights_factor, or train with fewer data. (Or server is performing unweighted aggregation)")
+        log(WARNING, "weights_factor exceeds allowed range and has been clipped. Either increase max_weights_factor, "
+                     "or train with fewer data. (Or server is performing unweighted aggregation)")
 
     quantized_weights = sec_agg_primitives.weights_multiply(
         quantized_weights, weights_factor)
@@ -241,7 +241,7 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     quantized_weights = sec_agg_primitives.weights_mod(
         quantized_weights, client.mod_range)
     log(INFO, "SecAgg Stage 3 Completed: Sent Vectors")
-    total_time = total_time+timeit.default_timer()
+    total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
         f = open("log.txt", "a")
         f.write(f"Client without communication stage 3:{total_time} \n")
@@ -263,7 +263,7 @@ def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVector
     for idx in dropout_clients:
         share_dict[idx] = client.sk1_share_dict[idx]
     log(INFO, "SecAgg Stage 4 Completed: Sent Shares for Unmasking")
-    total_time = total_time+timeit.default_timer()
+    total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
         f = open("log.txt", "a")
         f.write(f"Client without communication stage 4:{total_time} \n")
