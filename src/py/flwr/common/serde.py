@@ -348,10 +348,8 @@ def ask_keys_ins_from_proto(ask_keys_msg: ServerMessage.SecAggMsg) -> typing.Ask
     return typing.AskKeysIns()
 
 
-def ask_keys_res_to_proto(res: typing.ParametersRes) -> ClientMessage.SecAggRes:
-    return ClientMessage.SecAggRes(
-        ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1, pk2=res.pk2)
-    )
+def ask_keys_res_to_proto(res: typing.AskKeysRes) -> ClientMessage.SecAggRes:
+    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1, pk2=res.pk2))
 
 
 def ask_keys_res_from_proto(msg: ClientMessage.SecAggRes) -> typing.AskKeysRes:

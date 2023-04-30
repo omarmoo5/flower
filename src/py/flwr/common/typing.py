@@ -170,7 +170,6 @@ class AskKeysIns:
 @dataclass
 class AskKeysRes:
     """Ask Keys Stage Response from client to server"""
-
     pk1: bytes
     pk2: bytes
 

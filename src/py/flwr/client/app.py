@@ -14,7 +14,6 @@
 # ==============================================================================
 """Flower client app."""
 
-
 import sys
 import time
 from logging import INFO
@@ -41,7 +40,7 @@ from flwr.common.typing import (
     GetPropertiesIns,
     GetPropertiesRes,
     NDArrays,
-    Status,
+    Status, SetupParamIns, SetupParamRes, AskKeysIns, AskKeysRes,
 )
 
 from .client import Client
@@ -79,18 +78,17 @@ Example
 
 """
 
-
 ClientLike = Union[Client, NumPyClient]
 
 
 # pylint: disable=import-outside-toplevel,too-many-locals
 def start_client(
-    *,
-    server_address: str,
-    client: Client,
-    grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
-    root_certificates: Optional[Union[bytes, str]] = None,
-    rest: bool = False,
+        *,
+        server_address: str,
+        client: Client,
+        grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
+        root_certificates: Optional[Union[bytes, str]] = None,
+        rest: bool = False,
 ) -> None:
     """Start a Flower client node which connects to a Flower server.
 
@@ -164,9 +162,9 @@ def start_client(
     while True:
         sleep_duration: int = 0
         with connection(
-            address,
-            max_message_length=grpc_max_message_length,
-            root_certificates=root_certificates,
+                address,
+                max_message_length=grpc_max_message_length,
+                root_certificates=root_certificates,
         ) as conn:
             receive, send = conn
 
@@ -196,12 +194,12 @@ def start_client(
 
 
 def start_numpy_client(
-    *,
-    server_address: str,
-    client: NumPyClient,
-    grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
-    root_certificates: Optional[bytes] = None,
-    rest: bool = False,
+        *,
+        server_address: str,
+        client: NumPyClient,
+        grpc_max_message_length: int = GRPC_MAX_MESSAGE_LENGTH,
+        root_certificates: Optional[bytes] = None,
+        rest: bool = False,
 ) -> None:
     """Start a Flower NumPyClient which connects to a gRPC server.
 
@@ -296,10 +294,10 @@ def _fit(self: Client, ins: FitIns) -> FitRes:
     # Train
     results = self.numpy_client.fit(parameters, ins.config)  # type: ignore
     if not (
-        len(results) == 3
-        and isinstance(results[0], list)
-        and isinstance(results[1], int)
-        and isinstance(results[2], dict)
+            len(results) == 3
+            and isinstance(results[0], list)
+            and isinstance(results[1], int)
+            and isinstance(results[2], dict)
     ):
         raise Exception(EXCEPTION_MESSAGE_WRONG_RETURN_TYPE_FIT)
 
@@ -320,10 +318,10 @@ def _evaluate(self: Client, ins: EvaluateIns) -> EvaluateRes:
 
     results = self.numpy_client.evaluate(parameters, ins.config)  # type: ignore
     if not (
-        len(results) == 3
-        and isinstance(results[0], float)
-        and isinstance(results[1], int)
-        and isinstance(results[2], dict)
+            len(results) == 3
+            and isinstance(results[0], float)
+            and isinstance(results[1], int)
+            and isinstance(results[2], dict)
     ):
         raise Exception(EXCEPTION_MESSAGE_WRONG_RETURN_TYPE_EVALUATE)
 
@@ -335,6 +333,18 @@ def _evaluate(self: Client, ins: EvaluateIns) -> EvaluateRes:
         num_examples=num_examples,
         metrics=metrics,
     )
+
+
+def _setup_param(self: Client, ins: SetupParamIns) -> SetupParamRes:
+    """Set up the parameters of the client."""
+    res = self.numpy_client.setup_param(ins)  # type: ignore
+    return res
+
+
+def _ask_keys(self: Client, ins: AskKeysIns) -> AskKeysRes:
+    """Ask for the keys of the client."""
+    res = self.numpy_client.ask_keys(ins)  # type: ignore
+    return res
 
 
 def _wrap_numpy_client(client: NumPyClient) -> Client:
@@ -355,6 +365,13 @@ def _wrap_numpy_client(client: NumPyClient) -> Client:
 
     if numpyclient_has_evaluate(client=client):
         member_dict["evaluate"] = _evaluate
+
+    member_dict["setup_param"] = _setup_param
+    member_dict["ask_keys"] = _ask_keys
+    # if isinstance(client, SecAggClient):
+    #     member_dict["share_keys"] = _share_keys
+    #     member_dict["ask_vectors"] = _ask_vectors
+    #     member_dict["unmask_vectors"] = _unmask_vectors
 
     # Create wrapper class
     wrapper_class = type("NumPyClientWrapper", (Client,), member_dict)

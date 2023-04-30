@@ -43,7 +43,7 @@ from flwr.server.grpc_server.grpc_server import (
     start_grpc_server,
 )
 from flwr.server.history import History
-from flwr.server.secaggserver import SecAggServer
+from flwr.server.server import SecAggServer
 from flwr.server.server import Server
 from flwr.server.state import StateFactory
 from flwr.server.strategy import FedAvg, Strategy

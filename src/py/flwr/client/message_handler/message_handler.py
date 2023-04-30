@@ -23,7 +23,6 @@ from flwr.client.client import (
     maybe_call_get_parameters,
     maybe_call_get_properties,
 )
-from flwr.client.secagg_client import SecAggClient
 from flwr.common import serde
 from flwr.proto.transport_pb2 import ClientMessage, Reason, ServerMessage
 
@@ -162,22 +161,21 @@ def _evaluate(client: Client, evaluate_msg: ServerMessage.EvaluateIns) -> Client
 
 def _setup_param(client: Client, setup_param_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        if isinstance(client, SecAggClient):
-            setup_param_ins = serde.setup_param_ins_from_proto(setup_param_msg)
-            setup_param_res = client.setup_param(setup_param_ins)
-            setup_param_res_proto = serde.setup_param_res_to_proto(setup_param_res)
-            return ClientMessage(sec_agg_res=setup_param_res_proto)
+        setup_param_ins = serde.setup_param_ins_from_proto(setup_param_msg)
+        setup_param_res = client.setup_param(setup_param_ins)
+        setup_param_res_proto = serde.setup_param_res_to_proto(setup_param_res)
+        return ClientMessage(sec_agg_res=setup_param_res_proto)
     except Exception as e:
+        print(e)
         return _error_res(e)
 
 
 def _ask_keys(client: Client, ask_keys_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        if isinstance(client, SecAggClient):
-            ask_keys_ins = serde.ask_keys_ins_from_proto(ask_keys_msg)
-            ask_keys_res = client.ask_keys(ask_keys_ins)
-            ask_keys_res_proto = serde.ask_keys_res_to_proto(ask_keys_res)
-            return ClientMessage(sec_agg_res=ask_keys_res_proto)
+        ask_keys_ins = serde.ask_keys_ins_from_proto(ask_keys_msg)
+        ask_keys_res = client.ask_keys(ask_keys_ins)
+        ask_keys_res_proto = serde.ask_keys_res_to_proto(ask_keys_res)
+        return ClientMessage(sec_agg_res=ask_keys_res_proto)
     except Exception as e:
         return _error_res(e)
 

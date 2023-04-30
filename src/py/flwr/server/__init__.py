@@ -24,7 +24,7 @@ from .app import start_server as start_server
 from .client_manager import ClientManager as ClientManager
 from .client_manager import SimpleClientManager as SimpleClientManager
 from .history import History as History
-from .server import Server as Server
+from .server import Server as Server, SecAggServer
 
 __all__ = [
     "ClientManager",
@@ -37,4 +37,5 @@ __all__ = [
     "SimpleClientManager",
     "start_server",
     "strategy",
+    "SecAggServer",
 ]

@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+from typing import Dict, Tuple
+
+from flwr.client import NumPyClient
 from flwr.common import (
     AskKeysRes,
     EvaluateIns,
@@ -25,27 +28,29 @@ from flwr.common.sec_agg import sec_agg_client_logic
 from flwr.common.typing import (AskKeysIns, AskVectorsIns,
                                 AskVectorsRes, SetupParamIns,
                                 ShareKeysIns, ShareKeysRes,
-                                UnmaskVectorsIns, UnmaskVectorsRes, GetParametersIns)
-from .client import Client
+                                UnmaskVectorsIns, UnmaskVectorsRes, GetParametersIns, NDArrays, Scalar, SetupParamRes)
 
 
-class SecAggClient(Client):
+class SecAggClient(NumPyClient):
     """Wrapper which adds SecAgg methods."""
 
-    def __init__(self, c: Client) -> None:
+    def __init__(self, c: NumPyClient) -> None:
         self.client = c
 
-    def get_parameters(self, ins: GetParametersIns) -> GetParametersRes:
+    def __str__(self):
+        return "Wrapper for SecAgg Client"
+
+    def get_parameters(self, ins: Dict[str, Scalar]) -> NDArrays:
         """Return the current local model parameters."""
         return self.client.get_parameters(ins)
 
-    def fit(self, ins: FitIns) -> FitRes:
-        return self.client.fit(ins)
+    def fit(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[NDArrays, int, Dict[str, Scalar]]:
+        return self.client.fit(parameters, config)
 
-    def evaluate(self, ins: EvaluateIns) -> EvaluateRes:
-        return self.client.evaluate(ins)
+    def evaluate(self, parameters: NDArrays, config: Dict[str, Scalar]) -> Tuple[float, int, Dict[str, Scalar]]:
+        return self.client.evaluate(parameters, config)
 
-    def setup_param(self, setup_param_ins: SetupParamIns):
+    def setup_param(self, setup_param_ins: SetupParamIns) -> SetupParamRes:
         return sec_agg_client_logic.setup_param(self, setup_param_ins)
 
     def ask_keys(self, ask_keys_ins: AskKeysIns) -> AskKeysRes:

@@ -69,9 +69,7 @@ class GrpcClientProxy(ClientProxy):
             )
         )
         client_msg: ClientMessage = res_wrapper.client_message
-        get_parameters_res = serde.get_parameters_res_from_proto(
-            client_msg.get_parameters_res
-        )
+        get_parameters_res = serde.get_parameters_res_from_proto(client_msg.get_parameters_res)
         return get_parameters_res
 
     def fit(
@@ -129,7 +127,10 @@ class GrpcClientProxy(ClientProxy):
     def setup_param(self, setup_param_ins: SetupParamIns):
         setup_param_msg = serde.setup_param_ins_to_proto(setup_param_ins)
         res_wrapper: ResWrapper = self.bridge.request(
-            ServerMessage(sec_agg_msg=setup_param_msg)
+            ins_wrapper=InsWrapper(
+                server_message=ServerMessage(sec_agg_msg=setup_param_msg),
+                timeout=None,
+            )
         )
         client_msg: ClientMessage = res_wrapper.client_message
         serde.check_error(client_msg.sec_agg_res)
