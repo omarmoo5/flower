@@ -40,7 +40,8 @@ from flwr.common.typing import (
     GetPropertiesIns,
     GetPropertiesRes,
     NDArrays,
-    Status, SetupParamIns, SetupParamRes, AskKeysIns, AskKeysRes,
+    Status, SetupParamIns, SetupParamRes, AskKeysIns, AskKeysRes, UnmaskVectorsIns, AskVectorsIns, AskVectorsRes,
+    ShareKeysIns, UnmaskVectorsRes, ShareKeysRes,
 )
 
 from .client import Client
@@ -347,6 +348,24 @@ def _ask_keys(self: Client, ins: AskKeysIns) -> AskKeysRes:
     return res
 
 
+def _share_keys(self: Client, ins: ShareKeysIns) -> ShareKeysRes:
+    """Share the keys of the client."""
+    res = self.numpy_client.share_keys(ins)  # type: ignore
+    return res
+
+
+def _ask_vectors(self: Client, ins: AskVectorsIns) -> AskVectorsRes:
+    """Ask for the vectors of the client."""
+    res = self.numpy_client.ask_vectors(ins)  # type: ignore
+    return res
+
+
+def _unmask_vectors(self: Client, ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
+    """Unmask the vectors of the client."""
+    res = self.numpy_client.unmask_vectors(ins)  # type: ignore
+    return res
+
+
 def _wrap_numpy_client(client: NumPyClient) -> Client:
     member_dict: Dict[str, Callable] = {  # type: ignore
         "__init__": _constructor,
@@ -368,10 +387,9 @@ def _wrap_numpy_client(client: NumPyClient) -> Client:
 
     member_dict["setup_param"] = _setup_param
     member_dict["ask_keys"] = _ask_keys
-    # if isinstance(client, SecAggClient):
-    #     member_dict["share_keys"] = _share_keys
-    #     member_dict["ask_vectors"] = _ask_vectors
-    #     member_dict["unmask_vectors"] = _unmask_vectors
+    member_dict["share_keys"] = _share_keys
+    member_dict["ask_vectors"] = _ask_vectors
+    member_dict["unmask_vectors"] = _unmask_vectors
 
     # Create wrapper class
     wrapper_class = type("NumPyClientWrapper", (Client,), member_dict)

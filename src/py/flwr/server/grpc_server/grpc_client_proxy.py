@@ -140,7 +140,10 @@ class GrpcClientProxy(ClientProxy):
     def ask_keys(self, ask_keys_ins: AskKeysIns) -> common.AskKeysRes:
         ask_keys_msg = serde.ask_keys_ins_to_proto(ask_keys_ins)
         res_wrapper: ResWrapper = self.bridge.request(
-            ServerMessage(sec_agg_msg=ask_keys_msg)
+            ins_wrapper=InsWrapper(
+                server_message= ServerMessage(sec_agg_msg=ask_keys_msg),
+                timeout=None,
+            )
         )
         client_msg: ClientMessage = res_wrapper.client_message
         serde.check_error(client_msg.sec_agg_res)
@@ -150,7 +153,10 @@ class GrpcClientProxy(ClientProxy):
     def share_keys(self, share_keys_ins: ShareKeysIns) -> ShareKeysRes:
         share_keys_msg = serde.share_keys_ins_to_proto(share_keys_ins)
         res_wrapper: ResWrapper = self.bridge.request(
-            ServerMessage(sec_agg_msg=share_keys_msg)
+            ins_wrapper=InsWrapper(
+                server_message=ServerMessage(sec_agg_msg=share_keys_msg),
+                timeout=None,
+            )
         )
         client_msg: ClientMessage = res_wrapper.client_message
         serde.check_error(client_msg.sec_agg_res)
@@ -160,7 +166,10 @@ class GrpcClientProxy(ClientProxy):
     def ask_vectors(self, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         ask_vectors_msg = serde.ask_vectors_ins_to_proto(ask_vectors_ins)
         res_wrapper: ResWrapper = self.bridge.request(
-            ServerMessage(sec_agg_msg=ask_vectors_msg)
+            ins_wrapper=InsWrapper(
+                server_message=ServerMessage(sec_agg_msg=ask_vectors_msg),
+                timeout=None,
+            )
         )
         client_msg: ClientMessage = res_wrapper.client_message
         serde.check_error(client_msg.sec_agg_res)
@@ -170,7 +179,10 @@ class GrpcClientProxy(ClientProxy):
     def unmask_vectors(self, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
         unmask_vectors_msg = serde.unmask_vectors_ins_to_proto(unmask_vectors_ins)
         res_wrapper: ResWrapper = self.bridge.request(
-            ServerMessage(sec_agg_msg=unmask_vectors_msg)
+            ins_wrapper=InsWrapper(
+                server_message=ServerMessage(sec_agg_msg=unmask_vectors_msg),
+                timeout=None,
+            )
         )
         client_msg: ClientMessage = res_wrapper.client_message
         serde.check_error(client_msg.sec_agg_res)

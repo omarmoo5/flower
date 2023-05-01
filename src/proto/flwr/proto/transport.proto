@@ -60,7 +60,9 @@ message ServerMessage {
     message SetupParam{
       map<string, Scalar> sec_agg_param_dict = 1;
     }
-    message AskKeys{}
+    message AskKeys{
+      map<string, Scalar> config = 1;
+    }
     message ShareKeys{
       message KeysPair{
         bytes pk1=1;

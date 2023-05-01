@@ -538,10 +538,9 @@ class SecAggServer(Server):
         # === Stage 1: Ask Public Keys ===
         log(INFO, "SecAgg Stage 1: Asking Keys")
         total_time = total_time + timeit.default_timer()
-        ask_keys_results_and_failures = ask_keys(ask_keys_clients)
+        ask_keys_results, failures = ask_keys(ask_keys_clients)
         total_time = total_time - timeit.default_timer()
         public_keys_dict: Dict[int, AskKeysRes] = {}
-        ask_keys_results = ask_keys_results_and_failures[0]
         if len(ask_keys_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after ask keys stage")
         share_keys_clients: Dict[int, ClientProxy] = {}
@@ -556,11 +555,10 @@ class SecAggServer(Server):
         # === Stage 2: Share Keys ===
         log(INFO, "SecAgg Stage 2: Sharing Keys")
         total_time = total_time + timeit.default_timer()
-        share_keys_results_and_failures = share_keys(
+        share_keys_results, failures = share_keys(
             share_keys_clients, public_keys_dict, sec_agg_param_dict['sample_num'], sec_agg_param_dict['share_num']
         )
         total_time = total_time - timeit.default_timer()
-        share_keys_results = share_keys_results_and_failures[0]
         if len(share_keys_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after share keys stage")
 
