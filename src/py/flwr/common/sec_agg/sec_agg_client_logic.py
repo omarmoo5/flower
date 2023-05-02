@@ -21,7 +21,7 @@ from flwr.common import (
 
 )
 from flwr.common.logger import log
-from flwr.common.parameter import ndarrays_to_parameters
+from flwr.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.common.sec_agg import sec_agg_primitives
 from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, \
     ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays
@@ -144,7 +144,6 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
 
 
 def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
-    total_time = -timeit.default_timer()
     # Receive shares and fit model
     packet_list = ask_vectors_ins.ask_vectors_in_list
     fit_ins = ask_vectors_ins.fit_ins
@@ -165,8 +164,8 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         shared_key = client.shared_key_2_dict[source]
         plaintext = sec_agg_primitives.decrypt(shared_key, ciphertext)
         try:
-            plaintext_source, plaintext_destination, plaintext_b_share, plaintext_sk1_share = \
-                sec_agg_primitives.share_keys_plaintext_separate(plaintext)
+            plaintext_source, plaintext_destination, plaintext_b_share, plaintext_sk1_share = sec_agg_primitives.share_keys_plaintext_separate(
+                plaintext)
         except:
             raise Exception(
                 "Decryption of ciphertext failed. Not supposed to happen")
@@ -180,26 +179,14 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         client.sk1_share_dict[source] = plaintext_sk1_share
 
     # fit client
-    # IMPORTANT ASSUMPTION: ASSUME ALL CLIENTS FIT SAME AMOUNT OF DATA
-    '''
-    fit_res = client.client.fit(fit_ins)
-    parameters = fit_res.parameters
+    # fit_res = client.client.fit(parameters_to_ndarrays(fit_ins.parameters), fit_ins.config)
+    # fit_res test here
+    parameters = fit_ins.parameters
+    weights_factor = 1
+    #
+    # parameters = fit_res.parameters
     weights = parameters_to_ndarrays(parameters)
-    weights_factor = fit_res.num_examples
-    '''
-    # temporary code=========================================================
-    if client.test == 1:
-        if client.sec_agg_id % 20 < client.test_dropout_value:
-            log(ERROR, "Force dropout due to testing!!")
-            raise Exception("Force dropout due to testing")
-        weights: NDArrays = sec_agg_primitives.weights_zero_generate(client.test_vector_shape)
-    # IMPORTANT NEED SOME FUNCTION TO GET CORRECT WEIGHT FACTOR
-    # NOW WE HARD CODE IT AS 1
-    # Generally, should be fit_res.num_examples
-
-    weights_factor = client.sec_agg_id + 1
-
-    # END =================================================================
+    # weights_factor = fit_res.num_examples
 
     # Quantize weight update vector
     quantized_weights = sec_agg_primitives.quantize(
@@ -241,11 +228,6 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     quantized_weights = sec_agg_primitives.weights_mod(
         quantized_weights, client.mod_range)
     log(INFO, "SecAgg Stage 3 Completed: Sent Vectors")
-    total_time = total_time + timeit.default_timer()
-    if client.sec_agg_id == 3:
-        f = open("log.txt", "a")
-        f.write(f"Client without communication stage 3:{total_time} \n")
-        f.close()
     return AskVectorsRes(parameters=ndarrays_to_parameters(quantized_weights))
 
 

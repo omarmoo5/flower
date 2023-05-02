@@ -182,33 +182,30 @@ def _ask_keys(client: Client, ask_keys_msg: ServerMessage.SecAggMsg) -> ClientMe
 
 def _share_keys(client: Client, share_keys_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        if isinstance(client, SecAggClient):
-            share_keys_in = serde.share_keys_ins_from_proto(share_keys_msg)
-            share_keys_res = client.share_keys(share_keys_in)
-            share_keys_res_proto = serde.share_keys_res_to_proto(share_keys_res)
-            return ClientMessage(sec_agg_res=share_keys_res_proto)
+        share_keys_in = serde.share_keys_ins_from_proto(share_keys_msg)
+        share_keys_res = client.share_keys(share_keys_in)
+        share_keys_res_proto = serde.share_keys_res_to_proto(share_keys_res)
+        return ClientMessage(sec_agg_res=share_keys_res_proto)
     except Exception as e:
         return _error_res(e)
 
 
 def _ask_vectors(client: Client, ask_vectors_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        if isinstance(client, SecAggClient):
-            ask_vectors_ins = serde.ask_vectors_ins_from_proto(ask_vectors_msg)
-            ask_vectors_res = client.ask_vectors(ask_vectors_ins)
-            ask_vectors_res_proto = serde.ask_vectors_res_to_proto(ask_vectors_res)
-            return ClientMessage(sec_agg_res=ask_vectors_res_proto)
+        ask_vectors_ins = serde.ask_vectors_ins_from_proto(ask_vectors_msg)
+        ask_vectors_res = client.ask_vectors(ask_vectors_ins)
+        ask_vectors_res_proto = serde.ask_vectors_res_to_proto(ask_vectors_res)
+        return ClientMessage(sec_agg_res=ask_vectors_res_proto)
     except Exception as e:
         return _error_res(e)
 
 
 def _unmask_vectors(client: Client, unmask_vectors_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        if isinstance(client, SecAggClient):
-            unmask_vectors_ins = serde.unmask_vectors_ins_from_proto(unmask_vectors_msg)
-            unmask_vectors_res = client.unmask_vectors(unmask_vectors_ins)
-            unmask_vectors_res_proto = serde.unmask_vectors_res_to_proto(unmask_vectors_res)
-            return ClientMessage(sec_agg_res=unmask_vectors_res_proto)
+        unmask_vectors_ins = serde.unmask_vectors_ins_from_proto(unmask_vectors_msg)
+        unmask_vectors_res = client.unmask_vectors(unmask_vectors_ins)
+        unmask_vectors_res_proto = serde.unmask_vectors_res_to_proto(unmask_vectors_res)
+        return ClientMessage(sec_agg_res=unmask_vectors_res_proto)
     except Exception as e:
         return _error_res(e)
 
