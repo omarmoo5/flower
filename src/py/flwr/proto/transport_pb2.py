@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   syntax='proto3',
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_pb=b'\n\x1a\x66lwr/proto/transport.proto\x12\nflwr.proto\"9\n\x06Status\x12\x1e\n\x04\x63ode\x18\x01 \x01(\x0e\x32\x10.flwr.proto.Code\x12\x0f\n\x07message\x18\x02 \x01(\t\"2\n\nParameters\x12\x0f\n\x07tensors\x18\x01 \x03(\x0c\x12\x13\n\x0btensor_type\x18\x02 \x01(\t\"\xb8\x14\n\rServerMessage\x12?\n\rreconnect_ins\x18\x01 \x01(\x0b\x32&.flwr.proto.ServerMessage.ReconnectInsH\x00\x12H\n\x12get_properties_ins\x18\x02 \x01(\x0b\x32*.flwr.proto.ServerMessage.GetPropertiesInsH\x00\x12H\n\x12get_parameters_ins\x18\x03 \x01(\x0b\x32*.flwr.proto.ServerMessage.GetParametersInsH\x00\x12\x33\n\x07\x66it_ins\x18\x04 \x01(\x0b\x32 .flwr.proto.ServerMessage.FitInsH\x00\x12=\n\x0c\x65valuate_ins\x18\x05 \x01(\x0b\x32%.flwr.proto.ServerMessage.EvaluateInsH\x00\x12:\n\x0bsec_agg_msg\x18\x06 \x01(\x0b\x32#.flwr.proto.ServerMessage.SecAggMsgH\x00\x1a\x1f\n\x0cReconnectIns\x12\x0f\n\x07seconds\x18\x01 \x01(\x03\x1a\x9d\x01\n\x10GetPropertiesIns\x12\x46\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x36.flwr.proto.ServerMessage.GetPropertiesIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x9d\x01\n\x10GetParametersIns\x12\x46\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x36.flwr.proto.ServerMessage.GetParametersIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xb5\x01\n\x06\x46itIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12<\n\x06\x63onfig\x18\x02 \x03(\x0b\x32,.flwr.proto.ServerMessage.FitIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xbf\x01\n\x0b\x45valuateIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12\x41\n\x06\x63onfig\x18\x02 \x03(\x0b\x32\x31.flwr.proto.ServerMessage.EvaluateIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xbf\x0b\n\tSecAggMsg\x12\x45\n\x0bsetup_param\x18\x01 \x01(\x0b\x32..flwr.proto.ServerMessage.SecAggMsg.SetupParamH\x00\x12?\n\x08\x61sk_keys\x18\x02 \x01(\x0b\x32+.flwr.proto.ServerMessage.SecAggMsg.AskKeysH\x00\x12\x43\n\nshare_keys\x18\x03 \x01(\x0b\x32-.flwr.proto.ServerMessage.SecAggMsg.ShareKeysH\x00\x12\x45\n\x0b\x61sk_vectors\x18\x04 \x01(\x0b\x32..flwr.proto.ServerMessage.SecAggMsg.AskVectorsH\x00\x12K\n\x0eunmask_vectors\x18\x05 \x01(\x0b\x32\x31.flwr.proto.ServerMessage.SecAggMsg.UnmaskVectorsH\x00\x1a\xb9\x01\n\nSetupParam\x12_\n\x12sec_agg_param_dict\x18\x01 \x03(\x0b\x32\x43.flwr.proto.ServerMessage.SecAggMsg.SetupParam.SecAggParamDictEntry\x1aJ\n\x14SecAggParamDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x95\x01\n\x07\x41skKeys\x12G\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x37.flwr.proto.ServerMessage.SecAggMsg.AskKeys.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xfd\x01\n\tShareKeys\x12[\n\x10public_keys_dict\x18\x01 \x03(\x0b\x32\x41.flwr.proto.ServerMessage.SecAggMsg.ShareKeys.PublicKeysDictEntry\x1a$\n\x08KeysPair\x12\x0b\n\x03pk1\x18\x01 \x01(\x0c\x12\x0b\n\x03pk2\x18\x02 \x01(\x0c\x1am\n\x13PublicKeysDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\x45\n\x05value\x18\x02 \x01(\x0b\x32\x36.flwr.proto.ServerMessage.SecAggMsg.ShareKeys.KeysPair:\x02\x38\x01\x1a\xb0\x03\n\nAskVectors\x12J\n\x0bpacket_list\x18\x01 \x03(\x0b\x32\x35.flwr.proto.ServerMessage.SecAggMsg.AskVectors.Packet\x12\x46\n\x07\x66it_ins\x18\x02 \x01(\x0b\x32\x35.flwr.proto.ServerMessage.SecAggMsg.AskVectors.FitIns\x1a\x41\n\x06Packet\x12\x0e\n\x06source\x18\x01 \x01(\x03\x12\x13\n\x0b\x64\x65stination\x18\x02 \x01(\x03\x12\x12\n\nciphertext\x18\x03 \x01(\x0c\x1a\xca\x01\n\x06\x46itIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12Q\n\x06\x63onfig\x18\x02 \x03(\x0b\x32\x41.flwr.proto.ServerMessage.SecAggMsg.AskVectors.FitIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x43\n\rUnmaskVectors\x12\x19\n\x11\x61vailable_clients\x18\x01 \x03(\x03\x12\x17\n\x0f\x64ropout_clients\x18\x02 \x03(\x03\x42\x05\n\x03msgB\x05\n\x03msg\"\xaf\x11\n\rClientMessage\x12\x41\n\x0e\x64isconnect_res\x18\x01 \x01(\x0b\x32\'.flwr.proto.ClientMessage.DisconnectResH\x00\x12H\n\x12get_properties_res\x18\x02 \x01(\x0b\x32*.flwr.proto.ClientMessage.GetPropertiesResH\x00\x12H\n\x12get_parameters_res\x18\x03 \x01(\x0b\x32*.flwr.proto.ClientMessage.GetParametersResH\x00\x12\x33\n\x07\x66it_res\x18\x04 \x01(\x0b\x32 .flwr.proto.ClientMessage.FitResH\x00\x12=\n\x0c\x65valuate_res\x18\x05 \x01(\x0b\x32%.flwr.proto.ClientMessage.EvaluateResH\x00\x12:\n\x0bsec_agg_res\x18\x06 \x01(\x0b\x32#.flwr.proto.ClientMessage.SecAggResH\x00\x1a\x33\n\rDisconnectRes\x12\"\n\x06reason\x18\x01 \x01(\x0e\x32\x12.flwr.proto.Reason\x1a\xcd\x01\n\x10GetPropertiesRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12N\n\nproperties\x18\x02 \x03(\x0b\x32:.flwr.proto.ClientMessage.GetPropertiesRes.PropertiesEntry\x1a\x45\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x62\n\x10GetParametersRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12*\n\nparameters\x18\x02 \x01(\x0b\x32\x16.flwr.proto.Parameters\x1a\xf2\x01\n\x06\x46itRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12*\n\nparameters\x18\x02 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12\x14\n\x0cnum_examples\x18\x03 \x01(\x03\x12>\n\x07metrics\x18\x04 \x03(\x0b\x32-.flwr.proto.ClientMessage.FitRes.MetricsEntry\x1a\x42\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xde\x01\n\x0b\x45valuateRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12\x0c\n\x04loss\x18\x02 \x01(\x02\x12\x14\n\x0cnum_examples\x18\x03 \x01(\x03\x12\x43\n\x07metrics\x18\x04 \x03(\x0b\x32\x32.flwr.proto.ClientMessage.EvaluateRes.MetricsEntry\x1a\x42\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xd0\x07\n\tSecAggRes\x12L\n\x0fsetup_param_res\x18\x01 \x01(\x0b\x32\x31.flwr.proto.ClientMessage.SecAggRes.SetupParamResH\x00\x12\x46\n\x0c\x61sk_keys_res\x18\x02 \x01(\x0b\x32..flwr.proto.ClientMessage.SecAggRes.AskKeysResH\x00\x12J\n\x0eshare_keys_res\x18\x03 \x01(\x0b\x32\x30.flwr.proto.ClientMessage.SecAggRes.ShareKeysResH\x00\x12L\n\x0f\x61sk_vectors_res\x18\x04 \x01(\x0b\x32\x31.flwr.proto.ClientMessage.SecAggRes.AskVectorsResH\x00\x12R\n\x12unmask_vectors_res\x18\x05 \x01(\x0b\x32\x34.flwr.proto.ClientMessage.SecAggRes.UnmaskVectorsResH\x00\x12\x41\n\terror_res\x18\x06 \x01(\x0b\x32,.flwr.proto.ClientMessage.SecAggRes.ErrorResH\x00\x1a\x0f\n\rSetupParamRes\x1aJ\n\nAskKeysRes\x12\x0b\n\x03pk1\x18\x01 \x01(\x0c\x12\x0b\n\x03pk2\x18\x02 \x01(\x0c\x12\x11\n\tsignature\x18\x03 \x01(\x0c\x12\x0f\n\x07sig_pub\x18\x04 \x01(\x0c\x1a\x9f\x01\n\x0cShareKeysRes\x12L\n\x0bpacket_list\x18\x01 \x03(\x0b\x32\x37.flwr.proto.ClientMessage.SecAggRes.ShareKeysRes.Packet\x1a\x41\n\x06Packet\x12\x0e\n\x06source\x18\x01 \x01(\x03\x12\x13\n\x0b\x64\x65stination\x18\x02 \x01(\x03\x12\x12\n\nciphertext\x18\x03 \x01(\x0c\x1a;\n\rAskVectorsRes\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x1a\x9d\x01\n\x10UnmaskVectorsRes\x12W\n\nshare_dict\x18\x01 \x03(\x0b\x32\x43.flwr.proto.ClientMessage.SecAggRes.UnmaskVectorsRes.ShareDictEntry\x1a\x30\n\x0eShareDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\x1a\x19\n\x08\x45rrorRes\x12\r\n\x05\x65rror\x18\x01 \x01(\tB\x05\n\x03msgB\x05\n\x03msg\"i\n\x06Scalar\x12\x10\n\x06\x64ouble\x18\x01 \x01(\x01H\x00\x12\x10\n\x06sint64\x18\x08 \x01(\x12H\x00\x12\x0e\n\x04\x62ool\x18\r \x01(\x08H\x00\x12\x10\n\x06string\x18\x0e \x01(\tH\x00\x12\x0f\n\x05\x62ytes\x18\x0f \x01(\x0cH\x00\x42\x08\n\x06scalar*\x8d\x01\n\x04\x43ode\x12\x06\n\x02OK\x10\x00\x12\"\n\x1eGET_PROPERTIES_NOT_IMPLEMENTED\x10\x01\x12\"\n\x1eGET_PARAMETERS_NOT_IMPLEMENTED\x10\x02\x12\x17\n\x13\x46IT_NOT_IMPLEMENTED\x10\x03\x12\x1c\n\x18\x45VALUATE_NOT_IMPLEMENTED\x10\x04*[\n\x06Reason\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tRECONNECT\x10\x01\x12\x16\n\x12POWER_DISCONNECTED\x10\x02\x12\x14\n\x10WIFI_UNAVAILABLE\x10\x03\x12\x07\n\x03\x41\x43K\x10\x04\x32S\n\rFlowerService\x12\x42\n\x04Join\x12\x19.flwr.proto.ClientMessage\x1a\x19.flwr.proto.ServerMessage\"\x00(\x01\x30\x01\x62\x06proto3'
+  serialized_pb=b'\n\x1a\x66lwr/proto/transport.proto\x12\nflwr.proto\"9\n\x06Status\x12\x1e\n\x04\x63ode\x18\x01 \x01(\x0e\x32\x10.flwr.proto.Code\x12\x0f\n\x07message\x18\x02 \x01(\t\"2\n\nParameters\x12\x0f\n\x07tensors\x18\x01 \x03(\x0c\x12\x13\n\x0btensor_type\x18\x02 \x01(\t\"\xdc\x14\n\rServerMessage\x12?\n\rreconnect_ins\x18\x01 \x01(\x0b\x32&.flwr.proto.ServerMessage.ReconnectInsH\x00\x12H\n\x12get_properties_ins\x18\x02 \x01(\x0b\x32*.flwr.proto.ServerMessage.GetPropertiesInsH\x00\x12H\n\x12get_parameters_ins\x18\x03 \x01(\x0b\x32*.flwr.proto.ServerMessage.GetParametersInsH\x00\x12\x33\n\x07\x66it_ins\x18\x04 \x01(\x0b\x32 .flwr.proto.ServerMessage.FitInsH\x00\x12=\n\x0c\x65valuate_ins\x18\x05 \x01(\x0b\x32%.flwr.proto.ServerMessage.EvaluateInsH\x00\x12:\n\x0bsec_agg_msg\x18\x06 \x01(\x0b\x32#.flwr.proto.ServerMessage.SecAggMsgH\x00\x1a\x1f\n\x0cReconnectIns\x12\x0f\n\x07seconds\x18\x01 \x01(\x03\x1a\x9d\x01\n\x10GetPropertiesIns\x12\x46\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x36.flwr.proto.ServerMessage.GetPropertiesIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x9d\x01\n\x10GetParametersIns\x12\x46\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x36.flwr.proto.ServerMessage.GetParametersIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xb5\x01\n\x06\x46itIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12<\n\x06\x63onfig\x18\x02 \x03(\x0b\x32,.flwr.proto.ServerMessage.FitIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xbf\x01\n\x0b\x45valuateIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12\x41\n\x06\x63onfig\x18\x02 \x03(\x0b\x32\x31.flwr.proto.ServerMessage.EvaluateIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xe3\x0b\n\tSecAggMsg\x12\x45\n\x0bsetup_param\x18\x01 \x01(\x0b\x32..flwr.proto.ServerMessage.SecAggMsg.SetupParamH\x00\x12?\n\x08\x61sk_keys\x18\x02 \x01(\x0b\x32+.flwr.proto.ServerMessage.SecAggMsg.AskKeysH\x00\x12\x43\n\nshare_keys\x18\x03 \x01(\x0b\x32-.flwr.proto.ServerMessage.SecAggMsg.ShareKeysH\x00\x12\x45\n\x0b\x61sk_vectors\x18\x04 \x01(\x0b\x32..flwr.proto.ServerMessage.SecAggMsg.AskVectorsH\x00\x12K\n\x0eunmask_vectors\x18\x05 \x01(\x0b\x32\x31.flwr.proto.ServerMessage.SecAggMsg.UnmaskVectorsH\x00\x1a\xb9\x01\n\nSetupParam\x12_\n\x12sec_agg_param_dict\x18\x01 \x03(\x0b\x32\x43.flwr.proto.ServerMessage.SecAggMsg.SetupParam.SecAggParamDictEntry\x1aJ\n\x14SecAggParamDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x95\x01\n\x07\x41skKeys\x12G\n\x06\x63onfig\x18\x01 \x03(\x0b\x32\x37.flwr.proto.ServerMessage.SecAggMsg.AskKeys.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xa1\x02\n\tShareKeys\x12[\n\x10public_keys_dict\x18\x01 \x03(\x0b\x32\x41.flwr.proto.ServerMessage.SecAggMsg.ShareKeys.PublicKeysDictEntry\x1aH\n\x08KeysPair\x12\x0b\n\x03pk1\x18\x01 \x01(\x0c\x12\x0b\n\x03pk2\x18\x02 \x01(\x0c\x12\x11\n\tsignature\x18\x03 \x01(\x0c\x12\x0f\n\x07sig_pub\x18\x04 \x01(\x0c\x1am\n\x13PublicKeysDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\x45\n\x05value\x18\x02 \x01(\x0b\x32\x36.flwr.proto.ServerMessage.SecAggMsg.ShareKeys.KeysPair:\x02\x38\x01\x1a\xb0\x03\n\nAskVectors\x12J\n\x0bpacket_list\x18\x01 \x03(\x0b\x32\x35.flwr.proto.ServerMessage.SecAggMsg.AskVectors.Packet\x12\x46\n\x07\x66it_ins\x18\x02 \x01(\x0b\x32\x35.flwr.proto.ServerMessage.SecAggMsg.AskVectors.FitIns\x1a\x41\n\x06Packet\x12\x0e\n\x06source\x18\x01 \x01(\x03\x12\x13\n\x0b\x64\x65stination\x18\x02 \x01(\x03\x12\x12\n\nciphertext\x18\x03 \x01(\x0c\x1a\xca\x01\n\x06\x46itIns\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12Q\n\x06\x63onfig\x18\x02 \x03(\x0b\x32\x41.flwr.proto.ServerMessage.SecAggMsg.AskVectors.FitIns.ConfigEntry\x1a\x41\n\x0b\x43onfigEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x43\n\rUnmaskVectors\x12\x19\n\x11\x61vailable_clients\x18\x01 \x03(\x03\x12\x17\n\x0f\x64ropout_clients\x18\x02 \x03(\x03\x42\x05\n\x03msgB\x05\n\x03msg\"\xaf\x11\n\rClientMessage\x12\x41\n\x0e\x64isconnect_res\x18\x01 \x01(\x0b\x32\'.flwr.proto.ClientMessage.DisconnectResH\x00\x12H\n\x12get_properties_res\x18\x02 \x01(\x0b\x32*.flwr.proto.ClientMessage.GetPropertiesResH\x00\x12H\n\x12get_parameters_res\x18\x03 \x01(\x0b\x32*.flwr.proto.ClientMessage.GetParametersResH\x00\x12\x33\n\x07\x66it_res\x18\x04 \x01(\x0b\x32 .flwr.proto.ClientMessage.FitResH\x00\x12=\n\x0c\x65valuate_res\x18\x05 \x01(\x0b\x32%.flwr.proto.ClientMessage.EvaluateResH\x00\x12:\n\x0bsec_agg_res\x18\x06 \x01(\x0b\x32#.flwr.proto.ClientMessage.SecAggResH\x00\x1a\x33\n\rDisconnectRes\x12\"\n\x06reason\x18\x01 \x01(\x0e\x32\x12.flwr.proto.Reason\x1a\xcd\x01\n\x10GetPropertiesRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12N\n\nproperties\x18\x02 \x03(\x0b\x32:.flwr.proto.ClientMessage.GetPropertiesRes.PropertiesEntry\x1a\x45\n\x0fPropertiesEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\x62\n\x10GetParametersRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12*\n\nparameters\x18\x02 \x01(\x0b\x32\x16.flwr.proto.Parameters\x1a\xf2\x01\n\x06\x46itRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12*\n\nparameters\x18\x02 \x01(\x0b\x32\x16.flwr.proto.Parameters\x12\x14\n\x0cnum_examples\x18\x03 \x01(\x03\x12>\n\x07metrics\x18\x04 \x03(\x0b\x32-.flwr.proto.ClientMessage.FitRes.MetricsEntry\x1a\x42\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xde\x01\n\x0b\x45valuateRes\x12\"\n\x06status\x18\x01 \x01(\x0b\x32\x12.flwr.proto.Status\x12\x0c\n\x04loss\x18\x02 \x01(\x02\x12\x14\n\x0cnum_examples\x18\x03 \x01(\x03\x12\x43\n\x07metrics\x18\x04 \x03(\x0b\x32\x32.flwr.proto.ClientMessage.EvaluateRes.MetricsEntry\x1a\x42\n\x0cMetricsEntry\x12\x0b\n\x03key\x18\x01 \x01(\t\x12!\n\x05value\x18\x02 \x01(\x0b\x32\x12.flwr.proto.Scalar:\x02\x38\x01\x1a\xd0\x07\n\tSecAggRes\x12L\n\x0fsetup_param_res\x18\x01 \x01(\x0b\x32\x31.flwr.proto.ClientMessage.SecAggRes.SetupParamResH\x00\x12\x46\n\x0c\x61sk_keys_res\x18\x02 \x01(\x0b\x32..flwr.proto.ClientMessage.SecAggRes.AskKeysResH\x00\x12J\n\x0eshare_keys_res\x18\x03 \x01(\x0b\x32\x30.flwr.proto.ClientMessage.SecAggRes.ShareKeysResH\x00\x12L\n\x0f\x61sk_vectors_res\x18\x04 \x01(\x0b\x32\x31.flwr.proto.ClientMessage.SecAggRes.AskVectorsResH\x00\x12R\n\x12unmask_vectors_res\x18\x05 \x01(\x0b\x32\x34.flwr.proto.ClientMessage.SecAggRes.UnmaskVectorsResH\x00\x12\x41\n\terror_res\x18\x06 \x01(\x0b\x32,.flwr.proto.ClientMessage.SecAggRes.ErrorResH\x00\x1a\x0f\n\rSetupParamRes\x1aJ\n\nAskKeysRes\x12\x0b\n\x03pk1\x18\x01 \x01(\x0c\x12\x0b\n\x03pk2\x18\x02 \x01(\x0c\x12\x11\n\tsignature\x18\x03 \x01(\x0c\x12\x0f\n\x07sig_pub\x18\x04 \x01(\x0c\x1a\x9f\x01\n\x0cShareKeysRes\x12L\n\x0bpacket_list\x18\x01 \x03(\x0b\x32\x37.flwr.proto.ClientMessage.SecAggRes.ShareKeysRes.Packet\x1a\x41\n\x06Packet\x12\x0e\n\x06source\x18\x01 \x01(\x03\x12\x13\n\x0b\x64\x65stination\x18\x02 \x01(\x03\x12\x12\n\nciphertext\x18\x03 \x01(\x0c\x1a;\n\rAskVectorsRes\x12*\n\nparameters\x18\x01 \x01(\x0b\x32\x16.flwr.proto.Parameters\x1a\x9d\x01\n\x10UnmaskVectorsRes\x12W\n\nshare_dict\x18\x01 \x03(\x0b\x32\x43.flwr.proto.ClientMessage.SecAggRes.UnmaskVectorsRes.ShareDictEntry\x1a\x30\n\x0eShareDictEntry\x12\x0b\n\x03key\x18\x01 \x01(\x03\x12\r\n\x05value\x18\x02 \x01(\x0c:\x02\x38\x01\x1a\x19\n\x08\x45rrorRes\x12\r\n\x05\x65rror\x18\x01 \x01(\tB\x05\n\x03msgB\x05\n\x03msg\"i\n\x06Scalar\x12\x10\n\x06\x64ouble\x18\x01 \x01(\x01H\x00\x12\x10\n\x06sint64\x18\x08 \x01(\x12H\x00\x12\x0e\n\x04\x62ool\x18\r \x01(\x08H\x00\x12\x10\n\x06string\x18\x0e \x01(\tH\x00\x12\x0f\n\x05\x62ytes\x18\x0f \x01(\x0cH\x00\x42\x08\n\x06scalar*\x8d\x01\n\x04\x43ode\x12\x06\n\x02OK\x10\x00\x12\"\n\x1eGET_PROPERTIES_NOT_IMPLEMENTED\x10\x01\x12\"\n\x1eGET_PARAMETERS_NOT_IMPLEMENTED\x10\x02\x12\x17\n\x13\x46IT_NOT_IMPLEMENTED\x10\x03\x12\x1c\n\x18\x45VALUATE_NOT_IMPLEMENTED\x10\x04*[\n\x06Reason\x12\x0b\n\x07UNKNOWN\x10\x00\x12\r\n\tRECONNECT\x10\x01\x12\x16\n\x12POWER_DISCONNECTED\x10\x02\x12\x14\n\x10WIFI_UNAVAILABLE\x10\x03\x12\x07\n\x03\x41\x43K\x10\x04\x32S\n\rFlowerService\x12\x42\n\x04Join\x12\x19.flwr.proto.ClientMessage\x1a\x19.flwr.proto.ServerMessage\"\x00(\x01\x30\x01\x62\x06proto3'
 )
 
 _CODE = _descriptor.EnumDescriptor(
@@ -58,8 +58,8 @@ _CODE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=5106,
-  serialized_end=5247,
+  serialized_start=5142,
+  serialized_end=5283,
 )
 _sym_db.RegisterEnumDescriptor(_CODE)
 
@@ -99,8 +99,8 @@ _REASON = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   serialized_options=None,
-  serialized_start=5249,
-  serialized_end=5340,
+  serialized_start=5285,
+  serialized_end=5376,
 )
 _sym_db.RegisterEnumDescriptor(_REASON)
 
@@ -677,6 +677,20 @@ _SERVERMESSAGE_SECAGGMSG_SHAREKEYS_KEYSPAIR = _descriptor.Descriptor(
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='signature', full_name='flwr.proto.ServerMessage.SecAggMsg.ShareKeys.KeysPair.signature', index=2,
+      number=3, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
+    _descriptor.FieldDescriptor(
+      name='sig_pub', full_name='flwr.proto.ServerMessage.SecAggMsg.ShareKeys.KeysPair.sig_pub', index=3,
+      number=4, type=12, cpp_type=9, label=1,
+      has_default_value=False, default_value=b"",
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      serialized_options=None, file=DESCRIPTOR,  create_key=_descriptor._internal_create_key),
   ],
   extensions=[
   ],
@@ -690,7 +704,7 @@ _SERVERMESSAGE_SECAGGMSG_SHAREKEYS_KEYSPAIR = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=2105,
-  serialized_end=2141,
+  serialized_end=2177,
 )
 
 _SERVERMESSAGE_SECAGGMSG_SHAREKEYS_PUBLICKEYSDICTENTRY = _descriptor.Descriptor(
@@ -727,8 +741,8 @@ _SERVERMESSAGE_SECAGGMSG_SHAREKEYS_PUBLICKEYSDICTENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2143,
-  serialized_end=2252,
+  serialized_start=2179,
+  serialized_end=2288,
 )
 
 _SERVERMESSAGE_SECAGGMSG_SHAREKEYS = _descriptor.Descriptor(
@@ -759,7 +773,7 @@ _SERVERMESSAGE_SECAGGMSG_SHAREKEYS = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1999,
-  serialized_end=2252,
+  serialized_end=2288,
 )
 
 _SERVERMESSAGE_SECAGGMSG_ASKVECTORS_PACKET = _descriptor.Descriptor(
@@ -803,8 +817,8 @@ _SERVERMESSAGE_SECAGGMSG_ASKVECTORS_PACKET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2417,
-  serialized_end=2482,
+  serialized_start=2453,
+  serialized_end=2518,
 )
 
 _SERVERMESSAGE_SECAGGMSG_ASKVECTORS_FITINS_CONFIGENTRY = _descriptor.Descriptor(
@@ -879,8 +893,8 @@ _SERVERMESSAGE_SECAGGMSG_ASKVECTORS_FITINS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2485,
-  serialized_end=2687,
+  serialized_start=2521,
+  serialized_end=2723,
 )
 
 _SERVERMESSAGE_SECAGGMSG_ASKVECTORS = _descriptor.Descriptor(
@@ -917,8 +931,8 @@ _SERVERMESSAGE_SECAGGMSG_ASKVECTORS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2255,
-  serialized_end=2687,
+  serialized_start=2291,
+  serialized_end=2723,
 )
 
 _SERVERMESSAGE_SECAGGMSG_UNMASKVECTORS = _descriptor.Descriptor(
@@ -955,8 +969,8 @@ _SERVERMESSAGE_SECAGGMSG_UNMASKVECTORS = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2689,
-  serialized_end=2756,
+  serialized_start=2725,
+  serialized_end=2792,
 )
 
 _SERVERMESSAGE_SECAGGMSG = _descriptor.Descriptor(
@@ -1020,7 +1034,7 @@ _SERVERMESSAGE_SECAGGMSG = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=1292,
-  serialized_end=2763,
+  serialized_end=2799,
 )
 
 _SERVERMESSAGE = _descriptor.Descriptor(
@@ -1091,7 +1105,7 @@ _SERVERMESSAGE = _descriptor.Descriptor(
     fields=[]),
   ],
   serialized_start=154,
-  serialized_end=2770,
+  serialized_end=2806,
 )
 
 
@@ -1122,8 +1136,8 @@ _CLIENTMESSAGE_DISCONNECTRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3181,
-  serialized_end=3232,
+  serialized_start=3217,
+  serialized_end=3268,
 )
 
 _CLIENTMESSAGE_GETPROPERTIESRES_PROPERTIESENTRY = _descriptor.Descriptor(
@@ -1160,8 +1174,8 @@ _CLIENTMESSAGE_GETPROPERTIESRES_PROPERTIESENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3371,
-  serialized_end=3440,
+  serialized_start=3407,
+  serialized_end=3476,
 )
 
 _CLIENTMESSAGE_GETPROPERTIESRES = _descriptor.Descriptor(
@@ -1198,8 +1212,8 @@ _CLIENTMESSAGE_GETPROPERTIESRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3235,
-  serialized_end=3440,
+  serialized_start=3271,
+  serialized_end=3476,
 )
 
 _CLIENTMESSAGE_GETPARAMETERSRES = _descriptor.Descriptor(
@@ -1236,8 +1250,8 @@ _CLIENTMESSAGE_GETPARAMETERSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3442,
-  serialized_end=3540,
+  serialized_start=3478,
+  serialized_end=3576,
 )
 
 _CLIENTMESSAGE_FITRES_METRICSENTRY = _descriptor.Descriptor(
@@ -1274,8 +1288,8 @@ _CLIENTMESSAGE_FITRES_METRICSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3719,
-  serialized_end=3785,
+  serialized_start=3755,
+  serialized_end=3821,
 )
 
 _CLIENTMESSAGE_FITRES = _descriptor.Descriptor(
@@ -1326,8 +1340,8 @@ _CLIENTMESSAGE_FITRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3543,
-  serialized_end=3785,
+  serialized_start=3579,
+  serialized_end=3821,
 )
 
 _CLIENTMESSAGE_EVALUATERES_METRICSENTRY = _descriptor.Descriptor(
@@ -1364,8 +1378,8 @@ _CLIENTMESSAGE_EVALUATERES_METRICSENTRY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3719,
-  serialized_end=3785,
+  serialized_start=3755,
+  serialized_end=3821,
 )
 
 _CLIENTMESSAGE_EVALUATERES = _descriptor.Descriptor(
@@ -1416,8 +1430,8 @@ _CLIENTMESSAGE_EVALUATERES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=3788,
-  serialized_end=4010,
+  serialized_start=3824,
+  serialized_end=4046,
 )
 
 _CLIENTMESSAGE_SECAGGRES_SETUPPARAMRES = _descriptor.Descriptor(
@@ -1440,8 +1454,8 @@ _CLIENTMESSAGE_SECAGGRES_SETUPPARAMRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4481,
-  serialized_end=4496,
+  serialized_start=4517,
+  serialized_end=4532,
 )
 
 _CLIENTMESSAGE_SECAGGRES_ASKKEYSRES = _descriptor.Descriptor(
@@ -1492,8 +1506,8 @@ _CLIENTMESSAGE_SECAGGRES_ASKKEYSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4498,
-  serialized_end=4572,
+  serialized_start=4534,
+  serialized_end=4608,
 )
 
 _CLIENTMESSAGE_SECAGGRES_SHAREKEYSRES_PACKET = _descriptor.Descriptor(
@@ -1537,8 +1551,8 @@ _CLIENTMESSAGE_SECAGGRES_SHAREKEYSRES_PACKET = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=2417,
-  serialized_end=2482,
+  serialized_start=2453,
+  serialized_end=2518,
 )
 
 _CLIENTMESSAGE_SECAGGRES_SHAREKEYSRES = _descriptor.Descriptor(
@@ -1568,8 +1582,8 @@ _CLIENTMESSAGE_SECAGGRES_SHAREKEYSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4575,
-  serialized_end=4734,
+  serialized_start=4611,
+  serialized_end=4770,
 )
 
 _CLIENTMESSAGE_SECAGGRES_ASKVECTORSRES = _descriptor.Descriptor(
@@ -1599,8 +1613,8 @@ _CLIENTMESSAGE_SECAGGRES_ASKVECTORSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4736,
-  serialized_end=4795,
+  serialized_start=4772,
+  serialized_end=4831,
 )
 
 _CLIENTMESSAGE_SECAGGRES_UNMASKVECTORSRES_SHAREDICTENTRY = _descriptor.Descriptor(
@@ -1637,8 +1651,8 @@ _CLIENTMESSAGE_SECAGGRES_UNMASKVECTORSRES_SHAREDICTENTRY = _descriptor.Descripto
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4907,
-  serialized_end=4955,
+  serialized_start=4943,
+  serialized_end=4991,
 )
 
 _CLIENTMESSAGE_SECAGGRES_UNMASKVECTORSRES = _descriptor.Descriptor(
@@ -1668,8 +1682,8 @@ _CLIENTMESSAGE_SECAGGRES_UNMASKVECTORSRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4798,
-  serialized_end=4955,
+  serialized_start=4834,
+  serialized_end=4991,
 )
 
 _CLIENTMESSAGE_SECAGGRES_ERRORRES = _descriptor.Descriptor(
@@ -1699,8 +1713,8 @@ _CLIENTMESSAGE_SECAGGRES_ERRORRES = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=4957,
-  serialized_end=4982,
+  serialized_start=4993,
+  serialized_end=5018,
 )
 
 _CLIENTMESSAGE_SECAGGRES = _descriptor.Descriptor(
@@ -1770,8 +1784,8 @@ _CLIENTMESSAGE_SECAGGRES = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=4013,
-  serialized_end=4989,
+  serialized_start=4049,
+  serialized_end=5025,
 )
 
 _CLIENTMESSAGE = _descriptor.Descriptor(
@@ -1841,8 +1855,8 @@ _CLIENTMESSAGE = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=2773,
-  serialized_end=4996,
+  serialized_start=2809,
+  serialized_end=5032,
 )
 
 
@@ -1906,8 +1920,8 @@ _SCALAR = _descriptor.Descriptor(
       create_key=_descriptor._internal_create_key,
     fields=[]),
   ],
-  serialized_start=4998,
-  serialized_end=5103,
+  serialized_start=5034,
+  serialized_end=5139,
 )
 
 _STATUS.fields_by_name['code'].enum_type = _CODE
@@ -2471,8 +2485,8 @@ _FLOWERSERVICE = _descriptor.ServiceDescriptor(
   index=0,
   serialized_options=None,
   create_key=_descriptor._internal_create_key,
-  serialized_start=5342,
-  serialized_end=5425,
+  serialized_start=5378,
+  serialized_end=5461,
   methods=[
   _descriptor.MethodDescriptor(
     name='Join',

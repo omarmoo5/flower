@@ -344,15 +344,21 @@ class ServerMessage(google.protobuf.message.Message):
 
                 PK1_FIELD_NUMBER: builtins.int
                 PK2_FIELD_NUMBER: builtins.int
+                SIGNATURE_FIELD_NUMBER: builtins.int
+                SIG_PUB_FIELD_NUMBER: builtins.int
                 pk1: builtins.bytes
                 pk2: builtins.bytes
+                signature: builtins.bytes
+                sig_pub: builtins.bytes
                 def __init__(
                     self,
                     *,
                     pk1: builtins.bytes = ...,
                     pk2: builtins.bytes = ...,
+                    signature: builtins.bytes = ...,
+                    sig_pub: builtins.bytes = ...,
                 ) -> None: ...
-                def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2"]) -> None: ...
+                def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2", "sig_pub", b"sig_pub", "signature", b"signature"]) -> None: ...
 
             @typing_extensions.final
             class PublicKeysDictEntry(google.protobuf.message.Message):
@@ -637,6 +643,12 @@ class ClientMessage(google.protobuf.message.Message):
         NUM_EXAMPLES_FIELD_NUMBER: builtins.int
         METRICS_FIELD_NUMBER: builtins.int
         @property
+    RECONNECT_INS_FIELD_NUMBER: builtins.int
+    GET_PROPERTIES_INS_FIELD_NUMBER: builtins.int
+    GET_PARAMETERS_INS_FIELD_NUMBER: builtins.int
+    FIT_INS_FIELD_NUMBER: builtins.int
+    EVALUATE_INS_FIELD_NUMBER: builtins.int
+    SEC_AGG_MSG_FIELD_NUMBER: builtins.int
         def status(self) -> global___Status: ...
         @property
         def parameters(self) -> global___Parameters: ...

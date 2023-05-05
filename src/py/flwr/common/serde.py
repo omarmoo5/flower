@@ -365,7 +365,9 @@ def share_keys_ins_to_proto(share_keys_ins: typing.ShareKeysIns) -> ServerMessag
     proto_public_keys_dict = {}
     for i in public_keys_dict.keys():
         proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(pk1=public_keys_dict[i].pk1,
-                                                                               pk2=public_keys_dict[i].pk2
+                                                                               pk2=public_keys_dict[i].pk2,
+                                                                               signature=public_keys_dict[i].signature,
+                                                                               sig_pub=public_keys_dict[i].sig_pub
                                                                                )
     return ServerMessage.SecAggMsg(
         share_keys=ServerMessage.SecAggMsg.ShareKeys(
@@ -379,7 +381,9 @@ def share_keys_ins_from_proto(share_keys_msg: ServerMessage.SecAggMsg) -> typing
     public_keys_dict = {}
     for i in proto_public_keys_dict.keys():
         public_keys_dict[i] = typing.AskKeysRes(pk1=proto_public_keys_dict[i].pk1,
-                                                pk2=proto_public_keys_dict[i].pk2)
+                                                pk2=proto_public_keys_dict[i].pk2,
+                                                signature=proto_public_keys_dict[i].signature,
+                                                sig_pub=proto_public_keys_dict[i].sig_pub)
     return typing.ShareKeysIns(public_keys_dict=public_keys_dict)
 
 

@@ -67,6 +67,8 @@ message ServerMessage {
       message KeysPair{
         bytes pk1=1;
         bytes pk2=2;
+        bytes signature=3;
+        bytes sig_pub=4;
       }
       map<int64, KeysPair> public_keys_dict=1;
     }
