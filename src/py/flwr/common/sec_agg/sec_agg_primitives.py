@@ -44,28 +44,18 @@ from flwr.common.typing import NDArrays
 # Generate private and public key pairs with Cryptography
 
 
-def genSig( nbits=1024) -> tuple:
-    """Generates public and private keys using RSA algorithm, and saves them.
- Returns:
-        Tuple[PublicKey, PrivateKey]: the public and private keys.
-    """
-    pub_key, priv_key = rsa.newkeys(nbits, poolsize=multiprocessing.cpu_count())
-
-    return pub_key, priv_key
 def signMsg(msg: bytes, priv_key):
-    return rsa.sign(msg, priv_key, hash_method="SHA-1")
+    signature = priv_key.sign(
 
-def verifySig(msg: bytes, signature: bytes, pub_key) -> bool:
-    try:
-        rsa.verify(msg, signature, pub_key)
+    msg,
 
-        return True
+    ec.ECDSA(hashes.SHA256())
 
-    except rsa.VerificationError:
-        return False
+)
+    return signature
 
-
-
+def verifySig(msg: bytes, signature: bytes, pub_key):
+    return pub_key.verify(signature, msg, ec.ECDSA(hashes.SHA256()))
 
 
 def generate_key_pairs() -> Tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]:

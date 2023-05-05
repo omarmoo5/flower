@@ -66,17 +66,21 @@ def ask_keys(client, ask_keys_ins: AskKeysIns) -> AskKeysRes:
     # One for encrypting message to distribute shares
     client.sk1, client.pk1 = sec_agg_primitives.generate_key_pairs()
     client.sk2, client.pk2 = sec_agg_primitives.generate_key_pairs()
-    client.pub, client.priv = sec_agg_primitives.genSig()
+    client.priv, client.pub = sec_agg_primitives.generate_key_pairs()
 
     log(INFO, "SecAgg Stage 1 Completed: Created Key Pairs")
     total_time = total_time + timeit.default_timer()
-
+    # msg = pickle.dumps([client.pk1, client.pk2])
+    client_pk1=sec_agg_primitives.public_key_to_bytes(client.pk1)
+    client_pk2=sec_agg_primitives.public_key_to_bytes(client.pk2)
+    msg = pickle.dumps([client_pk1, client_pk2])
 
     return AskKeysRes(
-        pk1=sec_agg_primitives.public_key_to_bytes(client.pk1),
-        pk2=sec_agg_primitives.public_key_to_bytes(client.pk2),
-        signature=bytes("olooo", 'utf-8'),
-        sig_pub=bytes("hamadaaa", 'utf-8'))
+        pk1=client_pk1,
+        pk2=client_pk2,
+        signature=sec_agg_primitives.signMsg(msg, client.priv),
+        sig_pub=sec_agg_primitives.public_key_to_bytes(client.pub)
+    )
 
 
 def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
@@ -101,6 +105,13 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
             or client.public_keys_dict[client.sec_agg_id].pk2 != sec_agg_primitives.public_key_to_bytes(client.pk2):
         raise Exception(
             "Own public keys are displayed in dict incorrectly, should not happen!")
+
+    #verify signatures
+    for i in client.public_keys_dict.values():
+        msg = pickle.dumps([i.pk1,i.pk2])
+        pk= sec_agg_primitives.bytes_to_public_key(i.sig_pub)
+        sec_agg_primitives.verifySig(msg,i.signature,pk)
+
 
     # Generate private mask seed
     client.b = sec_agg_primitives.rand_bytes(32)
