@@ -715,15 +715,21 @@ class ClientMessage(google.protobuf.message.Message):
 
             PK1_FIELD_NUMBER: builtins.int
             PK2_FIELD_NUMBER: builtins.int
+            SIGNATURE_FIELD_NUMBER: builtins.int
+            SIG_PUB_FIELD_NUMBER: builtins.int
             pk1: builtins.bytes
             pk2: builtins.bytes
+            signature: builtins.bytes
+            sig_pub: builtins.bytes
             def __init__(
                 self,
                 *,
                 pk1: builtins.bytes = ...,
                 pk2: builtins.bytes = ...,
+                signature: builtins.bytes = ...,
+                sig_pub: builtins.bytes = ...,
             ) -> None: ...
-            def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2"]) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2", "sig_pub", b"sig_pub", "signature", b"signature"]) -> None: ...
 
         @typing_extensions.final
         class ShareKeysRes(google.protobuf.message.Message):

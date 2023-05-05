@@ -12,19 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import pickle
 import timeit
 from logging import ERROR, INFO, WARNING
 from typing import Dict, List, Tuple
 
-from flwr.common import (
-    AskKeysRes,
-
-)
 from flwr.common.logger import log
 from flwr.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.common.sec_agg import sec_agg_primitives
 from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, \
-    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays
+    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays, AskKeysRes
 
 
 def setup_param(client, setup_param_ins: SetupParamIns):
@@ -69,16 +66,17 @@ def ask_keys(client, ask_keys_ins: AskKeysIns) -> AskKeysRes:
     # One for encrypting message to distribute shares
     client.sk1, client.pk1 = sec_agg_primitives.generate_key_pairs()
     client.sk2, client.pk2 = sec_agg_primitives.generate_key_pairs()
+    client.pub, client.priv = sec_agg_primitives.genSig()
+
     log(INFO, "SecAgg Stage 1 Completed: Created Key Pairs")
     total_time = total_time + timeit.default_timer()
-    if client.sec_agg_id == 3:
-        f = open("log.txt", "a")
-        f.write(f"Client without communication stage 1:{total_time} \n")
-        f.close()
+
+
     return AskKeysRes(
         pk1=sec_agg_primitives.public_key_to_bytes(client.pk1),
         pk2=sec_agg_primitives.public_key_to_bytes(client.pk2),
-    )
+        signature=bytes("olooo", 'utf-8'),
+        sig_pub=bytes("hamadaaa", 'utf-8'))
 
 
 def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
@@ -89,7 +87,7 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
     # check size is larger than threshold
     if len(client.public_keys_dict) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
-
+    #TODO verify the signature
     # check if all public keys received are unique
     pk_list: List[bytes] = []
     for i in client.public_keys_dict.values():

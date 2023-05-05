@@ -172,6 +172,9 @@ class AskKeysRes:
     """Ask Keys Stage Response from client to server"""
     pk1: bytes
     pk2: bytes
+    signature: bytes
+    sig_pub: bytes
+
 
 
 @dataclass

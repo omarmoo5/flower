@@ -541,17 +541,18 @@ class SecAggServer(Server):
         ask_keys_results, failures = ask_keys(ask_keys_clients)
         total_time = total_time - timeit.default_timer()
         public_keys_dict: Dict[int, AskKeysRes] = {}
+        signatures={}
+        signatures_pub_keys = {}
         if len(ask_keys_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after ask keys stage")
         share_keys_clients: Dict[int, ClientProxy] = {}
-
+        # TODO Recieve signature with the public keys
         # Build public keys dict
         for idx, client in ask_keys_clients.items():
             if client in [result[0] for result in ask_keys_results]:
                 pos = [result[0] for result in ask_keys_results].index(client)
                 public_keys_dict[idx] = ask_keys_results[pos][1]
                 share_keys_clients[idx] = client
-
         # === Stage 2: Share Keys ===
         log(INFO, "SecAgg Stage 2: Sharing Keys")
         total_time = total_time + timeit.default_timer()
@@ -793,6 +794,7 @@ def setup_param_client(client: ClientProxy, setup_param_msg: SetupParamIns) -> T
 
 
 def ask_keys(clients: Dict[int, ClientProxy]) -> AskKeysResultsAndFailures:
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(ask_keys_client, c) for c in clients.values()]
         concurrent.futures.wait(futures)
@@ -839,7 +841,10 @@ def share_keys(clients: Dict[int, ClientProxy],
     return results, failures
 
 
-def share_keys_client(client: ClientProxy, idx: int, public_keys_dict: Dict[int, AskKeysRes], sample_num: int,
+def share_keys_client(client: ClientProxy,
+                      idx: int,
+                      public_keys_dict: Dict[int, AskKeysRes],
+                      sample_num: int,
                       share_num: int) -> Tuple[ClientProxy, ShareKeysRes]:
     if share_num == sample_num:
         # complete graph
@@ -847,9 +852,7 @@ def share_keys_client(client: ClientProxy, idx: int, public_keys_dict: Dict[int,
     local_dict: Dict[int, AskKeysRes] = {}
     for i in range(-int(share_num / 2), int(share_num / 2) + 1):
         if ((i + idx) % sample_num) in public_keys_dict.keys():
-            local_dict[(i + idx) % sample_num] = public_keys_dict[
-                (i + idx) % sample_num
-                ]
+            local_dict[(i + idx) % sample_num] = public_keys_dict[(i + idx) % sample_num]
 
     return client, client.share_keys(ShareKeysIns(public_keys_dict=local_dict))
 
@@ -914,8 +917,8 @@ def unmask_vectors_client(client: ClientProxy, idx: int, clients: List[ClientPro
                           sample_num: int, share_num: int) -> Tuple[ClientProxy, UnmaskVectorsRes]:
     if share_num == sample_num:
         # complete graph
-        return client, client.unmask_vectors(
-            UnmaskVectorsIns(available_clients=clients, dropout_clients=dropout_clients))
+        return client, client.unmask_vectors(UnmaskVectorsIns(available_clients=clients,
+                                                              dropout_clients=dropout_clients))
     local_clients: List[int] = []
     local_dropout_clients: List[int] = []
     for i in range(-int(share_num / 2), int(share_num / 2) + 1):

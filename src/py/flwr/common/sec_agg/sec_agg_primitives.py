@@ -15,6 +15,7 @@
 from __future__ import division
 from __future__ import print_function
 import math
+import multiprocessing
 from logging import WARNING, log
 import functools
 from typing import List, Tuple
@@ -24,13 +25,15 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import serialization
 import base64
-from Crypto.Util.Padding import pad, unpad
-from Crypto.Protocol.SecretSharing import Shamir
+from Cryptodome.Util.Padding import pad, unpad
+from Cryptodome.Protocol.SecretSharing import Shamir
 from concurrent.futures import ThreadPoolExecutor
 import os
 import random
 import pickle
 import numpy as np
+import rsa
+
 
 from numpy.core.fromnumeric import clip
 
@@ -41,7 +44,32 @@ from flwr.common.typing import NDArrays
 # Generate private and public key pairs with Cryptography
 
 
+def genSig( nbits=1024) -> tuple:
+    """Generates public and private keys using RSA algorithm, and saves them.
+ Returns:
+        Tuple[PublicKey, PrivateKey]: the public and private keys.
+    """
+    pub_key, priv_key = rsa.newkeys(nbits, poolsize=multiprocessing.cpu_count())
+
+    return pub_key, priv_key
+def signMsg(msg: bytes, priv_key):
+    return rsa.sign(msg, priv_key, hash_method="SHA-1")
+
+def verifySig(msg: bytes, signature: bytes, pub_key) -> bool:
+    try:
+        rsa.verify(msg, signature, pub_key)
+
+        return True
+
+    except rsa.VerificationError:
+        return False
+
+
+
+
+
 def generate_key_pairs() -> Tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]:
+
     sk = ec.generate_private_key(ec.SECP384R1())
     pk = sk.public_key()
     return sk, pk

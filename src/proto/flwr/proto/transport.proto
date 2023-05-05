@@ -75,6 +75,7 @@ message ServerMessage {
         int64 source=1;
         int64 destination=2;
         bytes ciphertext=3;
+
       }
       message FitIns {
         Parameters parameters = 1;
@@ -132,6 +133,8 @@ message ClientMessage {
     message AskKeysRes{
         bytes pk1=1;
         bytes pk2=2;
+        bytes signature = 3;
+        bytes sig_pub = 4;
     }
     message ShareKeysRes{
       message Packet{

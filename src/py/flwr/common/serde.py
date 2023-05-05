@@ -349,11 +349,14 @@ def ask_keys_ins_from_proto(ask_keys_msg: ServerMessage.SecAggMsg) -> typing.Ask
 
 
 def ask_keys_res_to_proto(res: typing.AskKeysRes) -> ClientMessage.SecAggRes:
-    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1, pk2=res.pk2))
+    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1,
+                                                                                   pk2=res.pk2,
+                                                                                   signature=res.signature,
+                                                                                   sig_pub=res.sig_pub))
 
 
 def ask_keys_res_from_proto(msg: ClientMessage.SecAggRes) -> typing.AskKeysRes:
-    return typing.AskKeysRes(pk1=msg.ask_keys_res.pk1, pk2=msg.ask_keys_res.pk2)
+    return typing.AskKeysRes(pk1=msg.ask_keys_res.pk1, pk2=msg.ask_keys_res.pk2,signature=msg.ask_keys_res.signature,sig_pub=msg.ask_keys_res.sig_pub)
 
 
 # === Share Keys ===
@@ -361,9 +364,9 @@ def share_keys_ins_to_proto(share_keys_ins: typing.ShareKeysIns) -> ServerMessag
     public_keys_dict = share_keys_ins.public_keys_dict
     proto_public_keys_dict = {}
     for i in public_keys_dict.keys():
-        proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(
-            pk1=public_keys_dict[i].pk1, pk2=public_keys_dict[i].pk2
-        )
+        proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(pk1=public_keys_dict[i].pk1,
+                                                                               pk2=public_keys_dict[i].pk2
+                                                                               )
     return ServerMessage.SecAggMsg(
         share_keys=ServerMessage.SecAggMsg.ShareKeys(
             public_keys_dict=proto_public_keys_dict
@@ -375,8 +378,8 @@ def share_keys_ins_from_proto(share_keys_msg: ServerMessage.SecAggMsg) -> typing
     proto_public_keys_dict = share_keys_msg.share_keys.public_keys_dict
     public_keys_dict = {}
     for i in proto_public_keys_dict.keys():
-        public_keys_dict[i] = typing.AskKeysRes(
-            pk1=proto_public_keys_dict[i].pk1, pk2=proto_public_keys_dict[i].pk2)
+        public_keys_dict[i] = typing.AskKeysRes(pk1=proto_public_keys_dict[i].pk1,
+                                                pk2=proto_public_keys_dict[i].pk2)
     return typing.ShareKeysIns(public_keys_dict=public_keys_dict)
 
 
