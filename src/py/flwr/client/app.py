@@ -358,7 +358,7 @@ def _ask_vectors(self: Client, ins: AskVectorsIns) -> AskVectorsRes:
     """Ask for the vectors of the client."""
     res = self.numpy_client.ask_vectors(ins)  # type: ignore
     return res
-#TODO consis
+
 def _consistency_checks(self: Client, ins: ConsistencyCheckIns) -> ConsistencyCheckRes:
     """Ask for the vectors of the client."""
     res = self.numpy_client.consistency_checks(ins)  # type: ignore
@@ -393,7 +393,6 @@ def _wrap_numpy_client(client: NumPyClient) -> Client:
     member_dict["ask_keys"] = _ask_keys
     member_dict["share_keys"] = _share_keys
     member_dict["ask_vectors"] = _ask_vectors
-    #TODO add consistency
     member_dict["consistency_checks"]=_consistency_checks
     member_dict["unmask_vectors"] = _unmask_vectors
 

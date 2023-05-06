@@ -606,7 +606,6 @@ class SecAggServer(Server):
                 client_parameters = ask_vectors_results[pos][1].parameters
                 masked_vector = sec_agg_primitives.weights_addition(
                     masked_vector, parameters_to_ndarrays(client_parameters))
-        #TODO add consistency check stage send list of the available clients to the users
 
 
         # ===stage 4 consistency check ====
@@ -906,7 +905,6 @@ def ask_vectors_client(client: ClientProxy, forward_packet_list: List[ShareKeysP
     ClientProxy, AskVectorsRes]:
     return client, client.ask_vectors(AskVectorsIns(ask_vectors_in_list=forward_packet_list, fit_ins=fit_ins))
 
-#TODO add consistency check
 def consistency_checks(clients:Dict[int, ClientProxy]):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = futures = [

@@ -86,7 +86,6 @@ message ServerMessage {
       repeated Packet packet_list=1;
       FitIns fit_ins=2;
     }
-//    TODO add consistency check message
     message ConsistencyChecks{
       repeated int64 available_clients=1;
     }
@@ -154,7 +153,6 @@ message ClientMessage {
     message AskVectorsRes{
       Parameters parameters = 1;
     }
-//    TODO add consistency check message
     message ConsistencyChecksRes{
       bytes signature =1;
     }

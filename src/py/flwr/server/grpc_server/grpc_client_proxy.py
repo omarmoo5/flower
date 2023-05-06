@@ -177,7 +177,6 @@ class GrpcClientProxy(ClientProxy):
         ask_vectors_res = serde.ask_vectors_res_from_proto(client_msg.sec_agg_res)
         return ask_vectors_res
 
-    #TODO consistency check proxy
     def consistency_checks(self,consistency_checks_ins: ConsistencyCheckIns) -> ConsistencyCheckRes:
         consistency_checks_msg = serde.consistency_checks_ins_to_proto(consistency_checks_ins)
         res_wrapper: ResWrapper = self.bridge.request(

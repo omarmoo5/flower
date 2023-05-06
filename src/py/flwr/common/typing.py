@@ -216,7 +216,6 @@ class ShareKeysRes:
 
 
 
-#TODO add consistency check INS and RES and edit unmask INS
 @dataclass
 class ConsistencyCheckIns:
     available_clients: List[int]

@@ -241,7 +241,7 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     return AskVectorsRes(parameters=ndarrays_to_parameters(quantized_weights))
 
 
-#TODO add consistency check client
+
 def consistency_checks(client,consistency_check_ins : ConsistencyCheckIns) -> ConsistencyCheckRes:
     available_clients = consistency_check_ins.available_clients
     available_clients = bytes(available_clients)

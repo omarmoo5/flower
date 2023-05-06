@@ -449,7 +449,6 @@ def ask_vectors_res_from_proto(ask_vectors_res_msg: ClientMessage.SecAggRes) -> 
 
 # === Unmask Vectors ===
 
-#TODO add consistency check proto
 def consistency_checks_ins_to_proto(consistency_checks_ins: typing.ConsistencyCheckIns) -> ServerMessage.SecAggMsg:
     return ServerMessage.SecAggMsg(consistency_checks=ServerMessage.SecAggMsg.ConsistencyChecks(available_clients=consistency_checks_ins.available_clients))
 def consistency_checks_ins_from_proto(consistency_check_ins: ServerMessage.SecAggMsg) ->typing.ConsistencyCheckIns:
