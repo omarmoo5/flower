@@ -18,6 +18,8 @@ import concurrent.futures
 from logging import DEBUG
 from typing import Dict, List, Optional, Tuple, Union
 
+import numpy as np
+
 from flwr.common import (
     Code,
     DisconnectRes,
@@ -34,6 +36,7 @@ from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.history import History
 from flwr.server.strategy import FedAvg, Strategy
+from src.utils import utils
 
 FitResultsAndFailures = Tuple[
     List[Tuple[ClientProxy, FitRes]],
@@ -48,6 +51,7 @@ ReconnectResultsAndFailures = Tuple[
     List[Union[Tuple[ClientProxy, DisconnectRes], BaseException]],
 ]
 
+config = utils.get_config()
 
 class Server:
     """Flower server."""
@@ -504,11 +508,9 @@ class SecAggServer(Server):
         total_time = 0
         total_time = total_time - timeit.default_timer()
         # Sample clients
-        client_instructions_list = self.strategy.configure_fit(
-            server_round=server_round,
-            parameters=self.parameters,
-            client_manager=self._client_manager)
-
+        client_instructions_list = self.strategy.configure_fit(server_round=server_round,
+                                                               parameters=self.parameters,
+                                                               client_manager=self._client_manager)
         setup_param_clients: Dict[int, ClientProxy] = {}
         client_instructions: Dict[int, FitIns] = {}
         for idx, (client_proxy, fit_ins) in enumerate(client_instructions_list):
@@ -584,16 +586,14 @@ class SecAggServer(Server):
         # === Stage 3: Ask Vectors ===
         log(INFO, "SecAgg Stage 3: Asking Vectors")
         total_time = total_time + timeit.default_timer()
-        ask_vectors_results_and_failures = ask_vectors(
-            ask_vectors_clients, forward_packet_list_dict, client_instructions)
+        ask_vectors_results, failures = ask_vectors(ask_vectors_clients, forward_packet_list_dict, client_instructions)
         total_time = total_time - timeit.default_timer()
-        ask_vectors_results = ask_vectors_results_and_failures[0]
         if len(ask_vectors_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after ask vectors stage")
         # Get shape of vector sent by first client
         masked_vector = sec_agg_primitives.weights_zero_generate(
             [i.shape for i in parameters_to_ndarrays(ask_vectors_results[0][1].parameters)])
-        # Add all collected masked vectors and compuute available and dropout clients set
+        # Add all collected masked vectors and compute available and dropout clients set
         unmask_vectors_clients: Dict[int, ClientProxy] = {}
         dropout_clients = ask_vectors_clients.copy()
         for idx, client in ask_vectors_clients.items():
@@ -602,13 +602,15 @@ class SecAggServer(Server):
                 unmask_vectors_clients[idx] = client
                 dropout_clients.pop(idx)
                 client_parameters = ask_vectors_results[pos][1].parameters
-                masked_vector = sec_agg_primitives.weights_addition(
-                    masked_vector, parameters_to_ndarrays(client_parameters))
+                masked_vector = sec_agg_primitives.weights_addition(masked_vector,
+                                                                    parameters_to_ndarrays(client_parameters))
         # === Stage 4: Unmask Vectors ===
         log(INFO, "SecAgg Stage 4: Unmasking Vectors")
         total_time = total_time + timeit.default_timer()
-        unmask_vectors_results_and_failures = unmask_vectors(
-            unmask_vectors_clients, dropout_clients, sec_agg_param_dict['sample_num'], sec_agg_param_dict['share_num'])
+        unmask_vectors_results_and_failures = unmask_vectors(unmask_vectors_clients,
+                                                             dropout_clients,
+                                                             sec_agg_param_dict['sample_num'],
+                                                             sec_agg_param_dict['share_num'])
         unmask_vectors_results = unmask_vectors_results_and_failures[0]
         total_time = total_time - timeit.default_timer()
         # Build collected shares dict
@@ -632,10 +634,10 @@ class SecAggServer(Server):
             secret = sec_agg_primitives.combine_shares(share_list=share_list)
             if client_id in unmask_vectors_clients.keys():
                 # seed is an available client's b
-                private_mask = sec_agg_primitives.pseudo_rand_gen(
-                    secret, sec_agg_param_dict['mod_range'], sec_agg_primitives.weights_shape(masked_vector))
-                masked_vector = sec_agg_primitives.weights_subtraction(
-                    masked_vector, private_mask)
+                private_mask = sec_agg_primitives.pseudo_rand_gen(secret,
+                                                                  sec_agg_param_dict['mod_range'],
+                                                                  sec_agg_primitives.weights_shape(masked_vector))
+                masked_vector = sec_agg_primitives.weights_subtraction(masked_vector, private_mask)
             else:
                 # seed is a dropout client's sk1
                 neighbor_list: List[int] = []
@@ -647,36 +649,60 @@ class SecAggServer(Server):
                                    int(sec_agg_param_dict['share_num'] / 2) + 1):
                         if i != 0 and (
                                 (i + client_id) % sec_agg_param_dict['sample_num']) in ask_vectors_clients.keys():
-                            neighbor_list.append((i + client_id) %
-                                                 sec_agg_param_dict['sample_num'])
+                            neighbor_list.append((i + client_id) % sec_agg_param_dict['sample_num'])
 
                 for neighbor_id in neighbor_list:
                     shared_key = sec_agg_primitives.generate_shared_key(
                         sec_agg_primitives.bytes_to_private_key(secret),
                         sec_agg_primitives.bytes_to_public_key(public_keys_dict[neighbor_id].pk1))
-                    pairwise_mask = sec_agg_primitives.pseudo_rand_gen(
-                        shared_key, sec_agg_param_dict['mod_range'], sec_agg_primitives.weights_shape(masked_vector))
+                    pairwise_mask = sec_agg_primitives.pseudo_rand_gen(shared_key,
+                                                                       sec_agg_param_dict['mod_range'],
+                                                                       sec_agg_primitives.weights_shape(masked_vector))
                     if client_id > neighbor_id:
-                        masked_vector = sec_agg_primitives.weights_addition(
-                            masked_vector, pairwise_mask)
+                        masked_vector = sec_agg_primitives.weights_addition(masked_vector, pairwise_mask)
                     else:
-                        masked_vector = sec_agg_primitives.weights_subtraction(
-                            masked_vector, pairwise_mask)
-        masked_vector = sec_agg_primitives.weights_mod(
-            masked_vector, sec_agg_param_dict['mod_range'])
+                        masked_vector = sec_agg_primitives.weights_subtraction(masked_vector, pairwise_mask)
+
+        masked_vector = sec_agg_primitives.weights_mod(masked_vector, sec_agg_param_dict['mod_range'])
+
+        masked_vector, masked_vector_uiv = masked_vector[:-4], masked_vector[-4:]
         # Divide vector by number of clients who have given us their masked vector
         # i.e. those participating in final unmask vectors stage
-        total_weights_factor, masked_vector = sec_agg_primitives.factor_weights_extract(
-            masked_vector)
-        masked_vector = sec_agg_primitives.weights_divide(
-            masked_vector, total_weights_factor)
-        aggregated_vector = sec_agg_primitives.reverse_quantize(
-            masked_vector, sec_agg_param_dict['clipping_range'], sec_agg_param_dict['target_range'])
-        aggregated_parameters = ndarrays_to_parameters(aggregated_vector)
+
+        # Weights
+        total_weights_factor, masked_vector = sec_agg_primitives.factor_weights_extract(masked_vector)
+        masked_vector = sec_agg_primitives.weights_divide(masked_vector, total_weights_factor)
+
+        # Updated Item Vector
+        total_iv_factor, masked_vector_uiv = sec_agg_primitives.factor_weights_extract(masked_vector_uiv)
+        masked_vector_uiv = sec_agg_primitives.weights_divide(masked_vector_uiv, total_iv_factor)
+
+        aggregated_weights = sec_agg_primitives.reverse_quantize(masked_vector,
+                                                                sec_agg_param_dict['clipping_range'],
+                                                                sec_agg_param_dict['target_range'])
+
+        total_updated_iv = sec_agg_primitives.reverse_quantize(masked_vector_uiv,
+                                                               sec_agg_param_dict['clipping_range'],
+                                                               sec_agg_param_dict['target_range'])
+        total_updated_iv = sec_agg_primitives.weights_multiply(total_updated_iv,total_iv_factor)
+
+        # MF-Sec AGG ----
+        total_updated_ivs, aggregated_embeddings = np.rint(total_updated_iv[0]), total_updated_iv[1:]
+        no_update_mask = (total_updated_ivs == 0)
+        if any(no_update_mask):
+            # Division by zero handling
+            log(WARNING, "Some Items didn't updated during this round")
+            total_updated_ivs[no_update_mask] = 1
+            embeddings_t = parameters_to_ndarrays(self.parameters)[:2]
+            for embedding_t, embedding_t_plus1 in zip(embeddings_t, aggregated_embeddings):
+                embedding_t_plus1[no_update_mask] = embedding_t[no_update_mask]
+        aggregated_embeddings /= total_updated_ivs.reshape(-1, 1)
+        # -----------------
+        aggregated_parameters = ndarrays_to_parameters([i for i in aggregated_embeddings] + aggregated_weights)
         total_time = total_time + timeit.default_timer()
         f = open("log.txt", "a")
         f.write(f"Server time without communication:{total_time} \n")
-        f.write(f"first element {aggregated_vector[0].flatten()[0]}\n\n\n")
+        f.write(f"first element {aggregated_weights[0].flatten()[0]}\n\n\n")
         f.close()
         return aggregated_parameters, [0], [0]
 
@@ -689,46 +715,41 @@ def process_sec_agg_param_dict(sec_agg_param_dict: Dict[str, Scalar]) -> Dict[st
     # Note we will eventually check whether min_num>=2
     if 'min_frac' not in sec_agg_param_dict:
         if 'min_num' not in sec_agg_param_dict:
-            sec_agg_param_dict['min_num'] = max(
-                2, int(0.9 * sec_agg_param_dict['sample_num']))
+            sec_agg_param_dict['min_num'] = max(2, int(0.9 * sec_agg_param_dict['sample_num']))
     else:
         if 'min_num' not in sec_agg_param_dict:
-            sec_agg_param_dict['min_num'] = int(
-                sec_agg_param_dict['min_frac'] * sec_agg_param_dict['sample_num'])
+            sec_agg_param_dict['min_num'] = int(sec_agg_param_dict['min_frac'] * sec_agg_param_dict['sample_num'])
         else:
-            sec_agg_param_dict['min_num'] = max(sec_agg_param_dict['min_num'], int(
-                sec_agg_param_dict['min_frac'] * sec_agg_param_dict['sample_num']))
+            sec_agg_param_dict['min_num'] = max(sec_agg_param_dict['min_num'],
+                                                int(sec_agg_param_dict['min_frac'] * sec_agg_param_dict['sample_num']))
 
     if 'share_num' not in sec_agg_param_dict:
         # Complete graph
         sec_agg_param_dict['share_num'] = sec_agg_param_dict['sample_num']
-    elif sec_agg_param_dict['share_num'] % 2 == 0 and sec_agg_param_dict['share_num'] != sec_agg_param_dict[
-        'sample_num']:
+    elif sec_agg_param_dict['share_num'] % 2 == 0 and\
+            sec_agg_param_dict['share_num'] != sec_agg_param_dict['sample_num']:
         # we want share_num of each node to be either odd or sample_num
         log(WARNING,
             "share_num value changed due to sample num and share_num constraints! See documentation for reason")
         sec_agg_param_dict['share_num'] += 1
 
     if 'threshold' not in sec_agg_param_dict:
-        sec_agg_param_dict['threshold'] = max(
-            2, int(sec_agg_param_dict['share_num'] * 0.9))
+        sec_agg_param_dict['threshold'] = max(2, int(sec_agg_param_dict['share_num'] * 0.9))
 
     # Maximum number of example trained set to 1000
     if 'max_weights_factor' not in sec_agg_param_dict:
-        sec_agg_param_dict['max_weights_factor'] = 1000
+        # todo: double check this number
+        sec_agg_param_dict['max_weights_factor'] = 4000
 
     # Quantization parameters
     if 'clipping_range' not in sec_agg_param_dict:
         sec_agg_param_dict['clipping_range'] = 3
-
     if 'target_range' not in sec_agg_param_dict:
         sec_agg_param_dict['target_range'] = 16777216
-
     if 'mod_range' not in sec_agg_param_dict:
         sec_agg_param_dict['mod_range'] = sec_agg_param_dict['sample_num'] * \
                                           sec_agg_param_dict['target_range'] * \
                                           sec_agg_param_dict['max_weights_factor']
-
     if 'timeout' not in sec_agg_param_dict:
         sec_agg_param_dict['timeout'] = 30
 

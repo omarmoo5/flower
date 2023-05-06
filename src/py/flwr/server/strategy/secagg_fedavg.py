@@ -17,26 +17,15 @@
 Paper: https://eprint.iacr.org/2017/281.pdf
 """
 
-from logging import WARNING
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Callable, Dict, Optional, Tuple
 
 from flwr.common import (
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
     Parameters,
     Scalar,
     NDArrays,
 )
-from flwr.common.logger import log
-from flwr.server.client_manager import ClientManager
-from flwr.server.client_proxy import ClientProxy
 from flwr.server.strategy.fedavg import FedAvg
-
-from .aggregate import aggregate, weighted_loss_avg
 from .secagg import SecAggStrategy
-from .strategy import Strategy
 
 
 class SecAggFedAvg(FedAvg, SecAggStrategy):
@@ -73,6 +62,7 @@ class SecAggFedAvg(FedAvg, SecAggStrategy):
                         accept_failures=accept_failures,
                         initial_parameters=initial_parameters)
         self.sec_agg_param_dict = sec_agg_param_dict
+
 
     def get_sec_agg_param(self) -> Dict[str, int]:
         return self.sec_agg_param_dict.copy()

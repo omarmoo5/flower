@@ -16,6 +16,9 @@ import timeit
 from logging import ERROR, INFO, WARNING
 from typing import Dict, List, Tuple
 
+import numpy as np
+import numpy.random
+
 from flwr.common import (
     AskKeysRes,
 
@@ -167,66 +170,71 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
             plaintext_source, plaintext_destination, plaintext_b_share, plaintext_sk1_share = sec_agg_primitives.share_keys_plaintext_separate(
                 plaintext)
         except:
-            raise Exception(
-                "Decryption of ciphertext failed. Not supposed to happen")
+            raise Exception("Decryption of ciphertext failed. Not supposed to happen")
         if plaintext_source != source:
-            raise Exception(
-                "Received packet source is different from intended source. Not supposed to happen")
+            raise Exception("Received packet source is different from intended source. Not supposed to happen")
         if plaintext_destination != destination:
-            raise Exception(
-                "Received packet destination is different from intended destination. Not supposed to happen")
+            raise Exception("Received packet destination is different from intended destination. Not supposed to happen")
         client.b_share_dict[source] = plaintext_b_share
         client.sk1_share_dict[source] = plaintext_sk1_share
 
     # fit client
-    # fit_res = client.client.fit(parameters_to_ndarrays(fit_ins.parameters), fit_ins.config)
+    weights, sum_updated_items, metrics = client.client.fit(parameters_to_ndarrays(fit_ins.parameters), fit_ins.config)
+    loss = metrics["loss"]
+    weights, embeddings = weights[2:], weights[:2]
+    updated_iv = numpy.array(list(metrics["updated_items"]))
+    embeddings = embeddings * updated_iv.reshape(-1, 1)
+    updated_iv = [updated_iv, *embeddings]
+
     # fit_res test here
-    parameters = fit_ins.parameters
-    weights_factor = 1
-    #
+    # parameters = fit_ins.parameters
+    weights_factor = sum_updated_items
     # parameters = fit_res.parameters
-    weights = parameters_to_ndarrays(parameters)
+    # weights = parameters_to_ndarrays(parameters)
+    # """"Testing"""
+    # weights_test = [numpy.ones_like(weight) for weight in weights]
+    # weights[:] = [weight for weight in weights_test]
     # weights_factor = fit_res.num_examples
 
     # Quantize weight update vector
-    quantized_weights = sec_agg_primitives.quantize(
-        weights, client.clipping_range, client.target_range)
+    quantized_weights = sec_agg_primitives.quantize(weights, client.clipping_range, client.target_range)
 
-    # weights factor cannoot exceed maximum
+    # weights factor cannot exceed maximum
     if weights_factor > client.max_weights_factor:
         weights_factor = client.max_weights_factor
         log(WARNING, "weights_factor exceeds allowed range and has been clipped. Either increase max_weights_factor, "
                      "or train with fewer data. (Or server is performing unweighted aggregation)")
 
-    quantized_weights = sec_agg_primitives.weights_multiply(
-        quantized_weights, weights_factor)
-    quantized_weights = sec_agg_primitives.factor_weights_combine(
-        weights_factor, quantized_weights)
+    # weights
+    quantized_weights = sec_agg_primitives.weights_multiply(quantized_weights, weights_factor)
+    quantized_weights = sec_agg_primitives.factor_weights_combine(weights_factor, quantized_weights)
+
+    # insert updated_iv
+    qiv = sec_agg_primitives.quantize(updated_iv, client.clipping_range, client.target_range)
+    qiv = sec_agg_primitives.weights_multiply(qiv, 1)
+    qiv = sec_agg_primitives.factor_weights_combine(1, qiv)
+
+    quantized_weights.extend(qiv)
 
     dimensions_list: List[Tuple] = [a.shape for a in quantized_weights]
 
     # add private mask
-    private_mask = sec_agg_primitives.pseudo_rand_gen(
-        client.b, client.mod_range, dimensions_list)
-    quantized_weights = sec_agg_primitives.weights_addition(
-        quantized_weights, private_mask)
+    private_mask = sec_agg_primitives.pseudo_rand_gen(client.b, client.mod_range, dimensions_list)
+    quantized_weights = sec_agg_primitives.weights_addition(quantized_weights, private_mask)
 
     for client_id in available_clients:
         # add pairwise mask
         shared_key = sec_agg_primitives.generate_shared_key(
-            client.sk1, sec_agg_primitives.bytes_to_public_key(client.public_keys_dict[client_id].pk1))
-        pairwise_mask = sec_agg_primitives.pseudo_rand_gen(
-            shared_key, client.mod_range, dimensions_list)
+            client.sk1,
+            sec_agg_primitives.bytes_to_public_key(client.public_keys_dict[client_id].pk1))
+        pairwise_mask = sec_agg_primitives.pseudo_rand_gen(shared_key, client.mod_range, dimensions_list)
         if client.sec_agg_id > client_id:
-            quantized_weights = sec_agg_primitives.weights_addition(
-                quantized_weights, pairwise_mask)
+            quantized_weights = sec_agg_primitives.weights_addition(quantized_weights, pairwise_mask)
         else:
-            quantized_weights = sec_agg_primitives.weights_subtraction(
-                quantized_weights, pairwise_mask)
+            quantized_weights = sec_agg_primitives.weights_subtraction(quantized_weights, pairwise_mask)
 
     # Take mod of final weight update vector and return to server
-    quantized_weights = sec_agg_primitives.weights_mod(
-        quantized_weights, client.mod_range)
+    quantized_weights = sec_agg_primitives.weights_mod(quantized_weights, client.mod_range)
     log(INFO, "SecAgg Stage 3 Completed: Sent Vectors")
     return AskVectorsRes(parameters=ndarrays_to_parameters(quantized_weights))
 
