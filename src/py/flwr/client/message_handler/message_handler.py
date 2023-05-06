@@ -205,7 +205,7 @@ def _ask_vectors(client: Client, ask_vectors_msg: ServerMessage.SecAggMsg) -> Cl
 #TODO add consistency check
 def _consistency_checks(client: Client, consistency_checks_msg: ServerMessage.SecAggMsg) -> ClientMessage:
     try:
-        consistency_checks_ins = serde.consistency_checks_res_from_proto(consistency_checks_msg)
+        consistency_checks_ins = serde.consistency_checks_ins_from_proto(consistency_checks_msg)
         consistency_checks_res = client.consistency_checks(consistency_checks_ins)
         consistency_checks_res_proto = serde.consistency_checks_res_to_proto(consistency_checks_res)
         return ClientMessage(sec_agg_res=consistency_checks_res_proto)

@@ -603,7 +603,6 @@ class SecAggServer(Server):
             if client in [result[0] for result in ask_vectors_results]:
                 pos = [result[0] for result in ask_vectors_results].index(client)
                 consistency_check_clients[idx] = client
-                dropout_clients.pop(idx)
                 client_parameters = ask_vectors_results[pos][1].parameters
                 masked_vector = sec_agg_primitives.weights_addition(
                     masked_vector, parameters_to_ndarrays(client_parameters))
@@ -611,7 +610,7 @@ class SecAggServer(Server):
 
 
         # ===stage 4 consistency check ====
-        unmask_vectors_clients= consistency_check_clients
+        # unmask_vectors_clients= consistency_check_clients
         log(INFO,"secAgg stage 4:consistency check")
         total_time = total_time + timeit.default_timer()
         consistency_check_results_and_failures = consistency_checks(consistency_check_clients)
@@ -619,11 +618,11 @@ class SecAggServer(Server):
         consistency_check_results= consistency_check_results_and_failures[0]
         if len(consistency_check_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after consistency check stage")
-        nmask_vectors_clients: Dict[int, ClientProxy] = {}
+        unmask_vectors_clients: Dict[int, ClientProxy] = {}
         for idx, client in consistency_check_clients.items():
             if client in [result[0] for result in consistency_check_results]:
                 pos = [result[0] for result in consistency_check_results].index(client)
-                nmask_vectors_clients[idx] = client
+                unmask_vectors_clients[idx] = client
                 dropout_clients.pop(idx)
 
         # === Stage 4: Unmask Vectors ===

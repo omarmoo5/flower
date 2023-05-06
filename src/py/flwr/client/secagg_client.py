@@ -28,7 +28,8 @@ from flwr.common.sec_agg import sec_agg_client_logic
 from flwr.common.typing import (AskKeysIns, AskVectorsIns,
                                 AskVectorsRes, SetupParamIns,
                                 ShareKeysIns, ShareKeysRes,
-                                UnmaskVectorsIns, UnmaskVectorsRes, GetParametersIns, NDArrays, Scalar, SetupParamRes)
+                                UnmaskVectorsIns, UnmaskVectorsRes, GetParametersIns, NDArrays, Scalar, SetupParamRes,
+                                ConsistencyCheckIns, ConsistencyCheckRes)
 
 
 class SecAggClient(NumPyClient):
@@ -61,6 +62,9 @@ class SecAggClient(NumPyClient):
 
     def ask_vectors(self, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         return sec_agg_client_logic.ask_vectors(self, ask_vectors_ins)
+
+    def consistency_checks(self , consistency_checks_ins : ConsistencyCheckIns) -> ConsistencyCheckRes:
+        return sec_agg_client_logic.consistency_checks(self, consistency_checks_ins)
 
     def unmask_vectors(self, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
         return sec_agg_client_logic.unmask_vectors(self, unmask_vectors_ins)

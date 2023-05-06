@@ -21,7 +21,8 @@ from flwr.common.logger import log
 from flwr.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.common.sec_agg import sec_agg_primitives
 from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, \
-    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays, AskKeysRes
+    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays, AskKeysRes, ConsistencyCheckIns, \
+    ConsistencyCheckRes
 
 
 def setup_param(client, setup_param_ins: SetupParamIns):
@@ -50,6 +51,8 @@ def setup_param(client, setup_param_ins: SetupParamIns):
     client.b_share_dict = {}
     client.sk1_share_dict = {}
     client.shared_key_2_dict = {}
+    client.priv, client.pub = sec_agg_primitives.generate_key_pairs()
+
     log(INFO, "SecAgg Stage 0 Completed: Parameters Set Up")
     total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
@@ -66,7 +69,6 @@ def ask_keys(client, ask_keys_ins: AskKeysIns) -> AskKeysRes:
     # One for encrypting message to distribute shares
     client.sk1, client.pk1 = sec_agg_primitives.generate_key_pairs()
     client.sk2, client.pk2 = sec_agg_primitives.generate_key_pairs()
-    client.priv, client.pub = sec_agg_primitives.generate_key_pairs()
 
     log(INFO, "SecAgg Stage 1 Completed: Created Key Pairs")
     total_time = total_time + timeit.default_timer()
@@ -240,6 +242,16 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
 
 
 #TODO add consistency check client
+def consistency_checks(client,consistency_check_ins : ConsistencyCheckIns) -> ConsistencyCheckRes:
+    available_clients = consistency_check_ins.available_clients
+    available_clients = bytes(available_clients)
+    if len(available_clients) < client.threshold:
+        raise Exception("Available neighbours number smaller than threshold")
+    # msg = pickle.dumps(available_clients)
+    signature = sec_agg_primitives.signMsg(available_clients,client.priv)
+    return ConsistencyCheckRes(
+        signature=signature
+    )
 
 def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
     total_time = -timeit.default_timer()
