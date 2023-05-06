@@ -76,6 +76,9 @@ def handle(
             return _share_keys(client, server_msg.sec_agg_msg), 0, True
         elif field == "ask_vectors":
             return _ask_vectors(client, server_msg.sec_agg_msg), 0, True
+        #TODO add consistency
+        elif field == "consistency_checks":
+            return _consistency_checks(client,server_msg.sec_agg_msg), 0, True
         elif field == "unmask_vectors":
             return _unmask_vectors(client, server_msg.sec_agg_msg), 0, True
     raise UnknownServerMessage()
@@ -196,6 +199,16 @@ def _ask_vectors(client: Client, ask_vectors_msg: ServerMessage.SecAggMsg) -> Cl
         ask_vectors_res = client.ask_vectors(ask_vectors_ins)
         ask_vectors_res_proto = serde.ask_vectors_res_to_proto(ask_vectors_res)
         return ClientMessage(sec_agg_res=ask_vectors_res_proto)
+    except Exception as e:
+        return _error_res(e)
+
+#TODO add consistency check
+def _consistency_checks(client: Client, consistency_checks_msg: ServerMessage.SecAggMsg) -> ClientMessage:
+    try:
+        consistency_checks_ins = serde.consistency_checks_res_from_proto(consistency_checks_msg)
+        consistency_checks_res = client.consistency_checks(consistency_checks_ins)
+        consistency_checks_res_proto = serde.consistency_checks_res_to_proto(consistency_checks_res)
+        return ClientMessage(sec_agg_res=consistency_checks_res_proto)
     except Exception as e:
         return _error_res(e)
 

@@ -215,6 +215,18 @@ class ShareKeysRes:
     share_keys_res_list: List[ShareKeysPacket]
 
 
+
+#TODO add consistency check INS and RES and edit unmask INS
+@dataclass
+class ConsistencyCheckIns:
+    available_clients: List[int]
+
+
+@dataclass
+class ConsistencyCheckRes:
+    signature: bytes
+
+
 @dataclass
 class UnmaskVectorsIns:
     available_clients: List[int]

@@ -22,7 +22,8 @@ from flwr.common import serde
 from flwr.proto.transport_pb2 import ClientMessage, ServerMessage
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.grpc_server.grpc_bridge import GrpcBridge, InsWrapper, ResWrapper
-from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, ShareKeysIns, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes
+from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, ShareKeysIns, ShareKeysRes, \
+    UnmaskVectorsIns, UnmaskVectorsRes, ConsistencyCheckIns, ConsistencyCheckRes
 
 
 class GrpcClientProxy(ClientProxy):
@@ -175,6 +176,20 @@ class GrpcClientProxy(ClientProxy):
         serde.check_error(client_msg.sec_agg_res)
         ask_vectors_res = serde.ask_vectors_res_from_proto(client_msg.sec_agg_res)
         return ask_vectors_res
+
+    #TODO consistency check proxy
+    def consistency_checks(self,consistency_checks_ins: ConsistencyCheckIns) -> ConsistencyCheckRes:
+        consistency_checks_msg = serde.consistency_checks_ins_to_proto(consistency_checks_ins)
+        res_wrapper: ResWrapper = self.bridge.request(
+            ins_wrapper=InsWrapper(
+                server_message=ServerMessage(sec_agg_msg=consistency_checks_msg),
+                timeout=None,
+            )
+        )
+        client_msg: ClientMessage = res_wrapper.client_message
+        serde.check_error(client_msg.sec_agg_res)
+        consistency_checks_res = serde.consistency_checks_res_from_proto(client_msg.sec_agg_res)
+        return consistency_checks_res
 
     def unmask_vectors(self, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
         unmask_vectors_msg = serde.unmask_vectors_ins_to_proto(unmask_vectors_ins)

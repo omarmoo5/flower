@@ -91,7 +91,6 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
     # check size is larger than threshold
     if len(client.public_keys_dict) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
-    #TODO verify the signature
     # check if all public keys received are unique
     pk_list: List[bytes] = []
     for i in client.public_keys_dict.values():
@@ -239,6 +238,8 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     log(INFO, "SecAgg Stage 3 Completed: Sent Vectors")
     return AskVectorsRes(parameters=ndarrays_to_parameters(quantized_weights))
 
+
+#TODO add consistency check client
 
 def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
     total_time = -timeit.default_timer()

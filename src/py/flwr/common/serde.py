@@ -449,6 +449,18 @@ def ask_vectors_res_from_proto(ask_vectors_res_msg: ClientMessage.SecAggRes) -> 
 
 # === Unmask Vectors ===
 
+#TODO add consistency check proto
+def consistency_checks_ins_to_proto(consistency_checks_ins: typing.ConsistencyCheckIns) -> ServerMessage.SecAggMsg:
+    return ServerMessage.SecAggMsg(consistency_checks=ServerMessage.SecAggMsg.ConsistencyChecks(available_clients=consistency_checks_ins.available_clients))
+def consistency_checks_ins_from_proto(consistency_check_ins: ServerMessage.SecAggMsg) ->typing.ConsistencyCheckIns:
+    return typing.ConsistencyCheckIns(available_clients=consistency_check_ins.consistency_checks.available_clients)
+
+def consistency_checks_res_to_proto(consistency_checks_res: typing.ConsistencyCheckRes) -> ClientMessage.SecAggRes :
+    return ClientMessage.SecAggRes(consistency_checks_res= ClientMessage.SecAggRes.ConsistencyChecksRes(signature=consistency_checks_res.signature))
+def consistency_checks_res_from_proto(consistency_checks_res: ClientMessage.SecAggRes) -> typing.ConsistencyCheckRes:
+    return typing.ConsistencyCheckRes(signature=consistency_checks_res.consistency_checks_res.signature)
+
+
 
 def unmask_vectors_ins_to_proto(unmask_vectors_ins: typing.UnmaskVectorsIns) -> ServerMessage.SecAggMsg:
     return ServerMessage.SecAggMsg(unmask_vectors=ServerMessage.SecAggMsg.UnmaskVectors(
