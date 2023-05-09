@@ -544,8 +544,6 @@ class SecAggServer(Server):
         ask_keys_results, failures = ask_keys(ask_keys_clients)
         total_time = total_time - timeit.default_timer()
         public_keys_dict: Dict[int, AskKeysRes] = {}
-        signatures={}
-        signatures_pub_keys = {}
         if len(ask_keys_results) < sec_agg_param_dict['min_num']:
             raise Exception("Not enough available clients after ask keys stage")
         share_keys_clients: Dict[int, ClientProxy] = {}
@@ -611,6 +609,7 @@ class SecAggServer(Server):
         # ===stage 4 consistency check ====
         # unmask_vectors_clients= consistency_check_clients
         log(INFO,"secAgg stage 4:consistency check")
+        signatures: Dict[int, bytes]={}
         total_time = total_time + timeit.default_timer()
         consistency_check_results_and_failures = consistency_checks(consistency_check_clients)
         total_time = total_time - timeit.default_timer()
@@ -623,12 +622,13 @@ class SecAggServer(Server):
                 pos = [result[0] for result in consistency_check_results].index(client)
                 unmask_vectors_clients[idx] = client
                 dropout_clients.pop(idx)
+                signatures[pos] = consistency_check_results[pos][1].signature
 
         # === Stage 4: Unmask Vectors ===
         log(INFO, "SecAgg Stage 4: Unmasking Vectors")
         total_time = total_time + timeit.default_timer()
         unmask_vectors_results_and_failures = unmask_vectors(
-            unmask_vectors_clients, dropout_clients, sec_agg_param_dict['sample_num'], sec_agg_param_dict['share_num'])
+            unmask_vectors_clients, dropout_clients, signatures, sec_agg_param_dict['sample_num'], sec_agg_param_dict['share_num'])
         unmask_vectors_results = unmask_vectors_results_and_failures[0]
         total_time = total_time - timeit.default_timer()
         # Build collected shares dict
@@ -935,13 +935,14 @@ def consistency_check_client(client: ClientProxy, idx: int, clients: List[Client
 
 def unmask_vectors(clients: Dict[int, ClientProxy],
                    dropout_clients: Dict[int, ClientProxy],
+                   signatures: Dict[int, bytes],
                    sample_num: int, share_num: int) -> UnmaskVectorsResultsAndFailures:
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
             executor.submit(
                 lambda p: unmask_vectors_client(*p),
                 (client, idx, list(clients.keys()), list(
-                    dropout_clients.keys()), sample_num, share_num),
+                    dropout_clients.keys()), signatures, sample_num, share_num),
             )
             for idx, client in clients.items()
         ]
@@ -960,10 +961,10 @@ def unmask_vectors(clients: Dict[int, ClientProxy],
 
 
 def unmask_vectors_client(client: ClientProxy, idx: int, clients: List[ClientProxy], dropout_clients: List[ClientProxy],
-                          sample_num: int, share_num: int) -> Tuple[ClientProxy, UnmaskVectorsRes]:
+                          signatures: Dict[int, bytes],sample_num: int, share_num: int) -> Tuple[ClientProxy, UnmaskVectorsRes]:
     if share_num == sample_num:
         # complete graph
-        return client, client.unmask_vectors(UnmaskVectorsIns(available_clients=clients,
+        return client, client.unmask_vectors(UnmaskVectorsIns(signatures=signatures, available_clients=clients,
                                                               dropout_clients=dropout_clients))
     local_clients: List[int] = []
     local_dropout_clients: List[int] = []
@@ -972,5 +973,5 @@ def unmask_vectors_client(client: ClientProxy, idx: int, clients: List[ClientPro
             local_clients.append((i + idx) % sample_num)
         if ((i + idx) % sample_num) in dropout_clients:
             local_dropout_clients.append((i + idx) % sample_num)
-    return client, client.unmask_vectors(
-        UnmaskVectorsIns(available_clients=local_clients, dropout_clients=local_dropout_clients))
+    return client, client.unmask_vectors(UnmaskVectorsIns(signatures=signatures, available_clients=local_clients,
+                                                          dropout_clients=local_dropout_clients))

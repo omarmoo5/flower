@@ -465,8 +465,6 @@ class ServerMessage(google.protobuf.message.Message):
 
         @typing_extensions.final
         class ConsistencyChecks(google.protobuf.message.Message):
-            """   TODO add consistency check message"""
-
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
             AVAILABLE_CLIENTS_FIELD_NUMBER: builtins.int
@@ -483,8 +481,27 @@ class ServerMessage(google.protobuf.message.Message):
         class UnmaskVectors(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
+            @typing_extensions.final
+            class SignaturesEntry(google.protobuf.message.Message):
+                DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+                KEY_FIELD_NUMBER: builtins.int
+                VALUE_FIELD_NUMBER: builtins.int
+                key: builtins.int
+                value: builtins.bytes
+                def __init__(
+                    self,
+                    *,
+                    key: builtins.int = ...,
+                    value: builtins.bytes = ...,
+                ) -> None: ...
+                def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+            SIGNATURES_FIELD_NUMBER: builtins.int
             AVAILABLE_CLIENTS_FIELD_NUMBER: builtins.int
             DROPOUT_CLIENTS_FIELD_NUMBER: builtins.int
+            @property
+            def signatures(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.bytes]: ...
             @property
             def available_clients(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
             @property
@@ -492,10 +509,11 @@ class ServerMessage(google.protobuf.message.Message):
             def __init__(
                 self,
                 *,
+                signatures: collections.abc.Mapping[builtins.int, builtins.bytes] | None = ...,
                 available_clients: collections.abc.Iterable[builtins.int] | None = ...,
                 dropout_clients: collections.abc.Iterable[builtins.int] | None = ...,
             ) -> None: ...
-            def ClearField(self, field_name: typing_extensions.Literal["available_clients", b"available_clients", "dropout_clients", b"dropout_clients"]) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["available_clients", b"available_clients", "dropout_clients", b"dropout_clients", "signatures", b"signatures"]) -> None: ...
 
         SETUP_PARAM_FIELD_NUMBER: builtins.int
         ASK_KEYS_FIELD_NUMBER: builtins.int
@@ -807,8 +825,6 @@ class ClientMessage(google.protobuf.message.Message):
 
         @typing_extensions.final
         class ConsistencyChecksRes(google.protobuf.message.Message):
-            """   TODO add consistency check message"""
-
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
             SIGNATURE_FIELD_NUMBER: builtins.int

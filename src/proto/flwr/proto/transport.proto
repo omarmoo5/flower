@@ -90,8 +90,9 @@ message ServerMessage {
       repeated int64 available_clients=1;
     }
     message UnmaskVectors{
-      repeated int64 available_clients=1;
-      repeated int64 dropout_clients=2;
+      map<int64,bytes> signatures=1;
+      repeated int64 available_clients=2;
+      repeated int64 dropout_clients=3;
     }
     oneof msg{
       SetupParam setup_param=1;

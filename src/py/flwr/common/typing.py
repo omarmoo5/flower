@@ -228,6 +228,7 @@ class ConsistencyCheckRes:
 
 @dataclass
 class UnmaskVectorsIns:
+    signatures: Dict[int, bytes]
     available_clients: List[int]
     dropout_clients: List[int]
 

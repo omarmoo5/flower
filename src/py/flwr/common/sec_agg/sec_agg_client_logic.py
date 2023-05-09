@@ -257,6 +257,7 @@ def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVector
     total_time = -timeit.default_timer()
     # Send private mask seed share for every avaliable client (including itclient)
     # Send first private key share for building pairwise mask for every dropped client
+    signatures = unmask_vectors_ins.signatures
     available_clients = unmask_vectors_ins.available_clients
     if len(available_clients) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")

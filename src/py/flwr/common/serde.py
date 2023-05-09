@@ -463,12 +463,14 @@ def consistency_checks_res_from_proto(consistency_checks_res: ClientMessage.SecA
 
 def unmask_vectors_ins_to_proto(unmask_vectors_ins: typing.UnmaskVectorsIns) -> ServerMessage.SecAggMsg:
     return ServerMessage.SecAggMsg(unmask_vectors=ServerMessage.SecAggMsg.UnmaskVectors(
+        signatures=unmask_vectors_ins.signatures,
         available_clients=unmask_vectors_ins.available_clients,
         dropout_clients=unmask_vectors_ins.dropout_clients))
 
 
 def unmask_vectors_ins_from_proto(unmask_vectors_ins: ServerMessage.SecAggMsg) -> typing.UnmaskVectorsIns:
     return typing.UnmaskVectorsIns(
+        signatures=unmask_vectors_ins.unmask_vectors.signatures,
         available_clients=unmask_vectors_ins.unmask_vectors.available_clients,
         dropout_clients=unmask_vectors_ins.unmask_vectors.dropout_clients)
 
