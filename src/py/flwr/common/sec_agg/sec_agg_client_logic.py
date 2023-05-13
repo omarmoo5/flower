@@ -12,22 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
+import pickle
 import timeit
 from logging import ERROR, INFO, WARNING
 from typing import Dict, List, Tuple
 
-import numpy as np
-import numpy.random
-
-from flwr.common import (
-    AskKeysRes,
-
-)
 from flwr.common.logger import log
 from flwr.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.common.sec_agg import sec_agg_primitives
 from flwr.common.typing import AskKeysIns, AskVectorsIns, AskVectorsRes, SetupParamIns, SetupParamRes, ShareKeysIns, \
-    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays
+    ShareKeysPacket, ShareKeysRes, UnmaskVectorsIns, UnmaskVectorsRes, NDArrays, AskKeysRes, ConsistencyCheckIns, \
+    ConsistencyCheckRes
 
 
 def setup_param(client, setup_param_ins: SetupParamIns):
@@ -56,6 +51,8 @@ def setup_param(client, setup_param_ins: SetupParamIns):
     client.b_share_dict = {}
     client.sk1_share_dict = {}
     client.shared_key_2_dict = {}
+    client.priv, client.pub = sec_agg_primitives.generate_key_pairs()
+
     log(INFO, "SecAgg Stage 0 Completed: Parameters Set Up")
     total_time = total_time + timeit.default_timer()
     if client.sec_agg_id == 3:
@@ -72,15 +69,19 @@ def ask_keys(client, ask_keys_ins: AskKeysIns) -> AskKeysRes:
     # One for encrypting message to distribute shares
     client.sk1, client.pk1 = sec_agg_primitives.generate_key_pairs()
     client.sk2, client.pk2 = sec_agg_primitives.generate_key_pairs()
+
     log(INFO, "SecAgg Stage 1 Completed: Created Key Pairs")
     total_time = total_time + timeit.default_timer()
-    if client.sec_agg_id == 3:
-        f = open("log.txt", "a")
-        f.write(f"Client without communication stage 1:{total_time} \n")
-        f.close()
+    # msg = pickle.dumps([client.pk1, client.pk2])
+    client_pk1 = sec_agg_primitives.public_key_to_bytes(client.pk1)
+    client_pk2 = sec_agg_primitives.public_key_to_bytes(client.pk2)
+    msg = pickle.dumps([client_pk1, client_pk2])
+
     return AskKeysRes(
-        pk1=sec_agg_primitives.public_key_to_bytes(client.pk1),
-        pk2=sec_agg_primitives.public_key_to_bytes(client.pk2),
+        pk1=client_pk1,
+        pk2=client_pk2,
+        signature=sec_agg_primitives.signMsg(msg, client.priv),
+        sig_pub=sec_agg_primitives.public_key_to_bytes(client.pub)
     )
 
 
@@ -89,6 +90,7 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
     # Distribute shares for private mask seed and first private key
 
     client.public_keys_dict = share_keys_in.public_keys_dict
+
     # check size is larger than threshold
     if len(client.public_keys_dict) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
@@ -106,6 +108,12 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
             or client.public_keys_dict[client.sec_agg_id].pk2 != sec_agg_primitives.public_key_to_bytes(client.pk2):
         raise Exception(
             "Own public keys are displayed in dict incorrectly, should not happen!")
+
+    # verify signatures
+    for i in client.public_keys_dict.values():
+        msg = pickle.dumps([i.pk1, i.pk2])
+        pk = sec_agg_primitives.bytes_to_public_key(i.sig_pub)
+        sec_agg_primitives.verifySig(msg, i.signature, pk)
 
     # Generate private mask seed
     client.b = sec_agg_primitives.rand_bytes(32)
@@ -174,7 +182,8 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         if plaintext_source != source:
             raise Exception("Received packet source is different from intended source. Not supposed to happen")
         if plaintext_destination != destination:
-            raise Exception("Received packet destination is different from intended destination. Not supposed to happen")
+            raise Exception(
+                "Received packet destination is different from intended destination. Not supposed to happen")
         client.b_share_dict[source] = plaintext_b_share
         client.sk1_share_dict[source] = plaintext_sk1_share
 
@@ -239,11 +248,30 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     return AskVectorsRes(parameters=ndarrays_to_parameters(quantized_weights))
 
 
+def consistency_checks(client, consistency_check_ins: ConsistencyCheckIns) -> ConsistencyCheckRes:
+    available_clients = consistency_check_ins.available_clients
+    available_clients = bytes(available_clients)
+    if len(available_clients) < client.threshold:
+        raise Exception("Available neighbours number smaller than threshold")
+    # msg = pickle.dumps(available_clients)
+    signature = sec_agg_primitives.signMsg(available_clients, client.priv)
+    return ConsistencyCheckRes(
+        signature=signature
+    )
+
+
 def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:
     total_time = -timeit.default_timer()
     # Send private mask seed share for every avaliable client (including itclient)
     # Send first private key share for building pairwise mask for every dropped client
+    signatures = unmask_vectors_ins.signatures
     available_clients = unmask_vectors_ins.available_clients
+    msg = bytes(available_clients)
+
+    for i in available_clients:
+        pk = sec_agg_primitives.bytes_to_public_key(client.public_keys_dict[i].sig_pub)
+        sec_agg_primitives.verifySig(msg, signatures[i], pk)
+
     if len(available_clients) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
     dropout_clients = unmask_vectors_ins.dropout_clients

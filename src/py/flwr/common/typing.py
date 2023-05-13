@@ -172,6 +172,9 @@ class AskKeysRes:
     """Ask Keys Stage Response from client to server"""
     pk1: bytes
     pk2: bytes
+    signature: bytes
+    sig_pub: bytes
+
 
 
 @dataclass
@@ -212,8 +215,20 @@ class ShareKeysRes:
     share_keys_res_list: List[ShareKeysPacket]
 
 
+
+@dataclass
+class ConsistencyCheckIns:
+    available_clients: List[int]
+
+
+@dataclass
+class ConsistencyCheckRes:
+    signature: bytes
+
+
 @dataclass
 class UnmaskVectorsIns:
+    signatures: Dict[int, bytes]
     available_clients: List[int]
     dropout_clients: List[int]
 

@@ -31,7 +31,7 @@ from flwr.common import (
     ReconnectIns,
     Scalar,
 )
-from flwr.common.typing import GetParametersIns
+from flwr.common.typing import GetParametersIns, ConsistencyCheckRes, ConsistencyCheckIns
 from flwr.server.client_manager import ClientManager
 from flwr.server.client_proxy import ClientProxy
 from flwr.server.history import History
@@ -487,6 +487,9 @@ ShareKeysResultsAndFailures = Tuple[
 AskVectorsResultsAndFailures = Tuple[
     List[Tuple[ClientProxy, AskVectorsRes]], List[BaseException]
 ]
+ConsistencyCheckResultsAndFailures = Tuple[
+    List[Tuple[ClientProxy, ConsistencyCheckRes]], List[BaseException]
+]
 UnmaskVectorsResultsAndFailures = Tuple[
     List[Tuple[ClientProxy, UnmaskVectorsRes]], List[BaseException]
 ]
@@ -594,23 +597,40 @@ class SecAggServer(Server):
         masked_vector = sec_agg_primitives.weights_zero_generate(
             [i.shape for i in parameters_to_ndarrays(ask_vectors_results[0][1].parameters)])
         # Add all collected masked vectors and compute available and dropout clients set
-        unmask_vectors_clients: Dict[int, ClientProxy] = {}
+        consistency_check_clients: Dict[int, ClientProxy] = {}
         dropout_clients = ask_vectors_clients.copy()
         for idx, client in ask_vectors_clients.items():
             if client in [result[0] for result in ask_vectors_results]:
                 pos = [result[0] for result in ask_vectors_results].index(client)
+                consistency_check_clients[idx] = client
+                client_parameters = ask_vectors_results[pos][1].parameters
+                masked_vector = sec_agg_primitives.weights_addition(
+                    masked_vector, parameters_to_ndarrays(client_parameters))
+
+
+        # ===stage 4 consistency check ====
+        # unmask_vectors_clients= consistency_check_clients
+        log(INFO,"secAgg stage 4:consistency check")
+        signatures: Dict[int, bytes]={}
+        total_time = total_time + timeit.default_timer()
+        consistency_check_results_and_failures = consistency_checks(consistency_check_clients)
+        total_time = total_time - timeit.default_timer()
+        consistency_check_results= consistency_check_results_and_failures[0]
+        if len(consistency_check_results) < sec_agg_param_dict['min_num']:
+            raise Exception("Not enough available clients after consistency check stage")
+        unmask_vectors_clients: Dict[int, ClientProxy] = {}
+        for idx, client in consistency_check_clients.items():
+            if client in [result[0] for result in consistency_check_results]:
+                pos = [result[0] for result in consistency_check_results].index(client)
                 unmask_vectors_clients[idx] = client
                 dropout_clients.pop(idx)
-                client_parameters = ask_vectors_results[pos][1].parameters
-                masked_vector = sec_agg_primitives.weights_addition(masked_vector,
-                                                                    parameters_to_ndarrays(client_parameters))
+                signatures[pos] = consistency_check_results[pos][1].signature
+
         # === Stage 4: Unmask Vectors ===
         log(INFO, "SecAgg Stage 4: Unmasking Vectors")
         total_time = total_time + timeit.default_timer()
-        unmask_vectors_results_and_failures = unmask_vectors(unmask_vectors_clients,
-                                                             dropout_clients,
-                                                             sec_agg_param_dict['sample_num'],
-                                                             sec_agg_param_dict['share_num'])
+        unmask_vectors_results_and_failures = unmask_vectors(
+            unmask_vectors_clients, dropout_clients, signatures, sec_agg_param_dict['sample_num'], sec_agg_param_dict['share_num'])
         unmask_vectors_results = unmask_vectors_results_and_failures[0]
         total_time = total_time - timeit.default_timer()
         # Build collected shares dict
@@ -739,12 +759,15 @@ def process_sec_agg_param_dict(sec_agg_param_dict: Dict[str, Scalar]) -> Dict[st
     # Quantization parameters
     if 'clipping_range' not in sec_agg_param_dict:
         sec_agg_param_dict['clipping_range'] = 3
+
     if 'target_range' not in sec_agg_param_dict:
         sec_agg_param_dict['target_range'] = 16777216
+
     if 'mod_range' not in sec_agg_param_dict:
         sec_agg_param_dict['mod_range'] = sec_agg_param_dict['sample_num'] * \
                                           sec_agg_param_dict['target_range'] * \
                                           sec_agg_param_dict['max_weights_factor']
+
     if 'timeout' not in sec_agg_param_dict:
         sec_agg_param_dict['timeout'] = 30
 
@@ -809,6 +832,7 @@ def setup_param_client(client: ClientProxy, setup_param_msg: SetupParamIns) -> T
 
 
 def ask_keys(clients: Dict[int, ClientProxy]) -> AskKeysResultsAndFailures:
+
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [executor.submit(ask_keys_client, c) for c in clients.values()]
         concurrent.futures.wait(futures)
@@ -855,7 +879,10 @@ def share_keys(clients: Dict[int, ClientProxy],
     return results, failures
 
 
-def share_keys_client(client: ClientProxy, idx: int, public_keys_dict: Dict[int, AskKeysRes], sample_num: int,
+def share_keys_client(client: ClientProxy,
+                      idx: int,
+                      public_keys_dict: Dict[int, AskKeysRes],
+                      sample_num: int,
                       share_num: int) -> Tuple[ClientProxy, ShareKeysRes]:
     if share_num == sample_num:
         # complete graph
@@ -863,9 +890,7 @@ def share_keys_client(client: ClientProxy, idx: int, public_keys_dict: Dict[int,
     local_dict: Dict[int, AskKeysRes] = {}
     for i in range(-int(share_num / 2), int(share_num / 2) + 1):
         if ((i + idx) % sample_num) in public_keys_dict.keys():
-            local_dict[(i + idx) % sample_num] = public_keys_dict[
-                (i + idx) % sample_num
-                ]
+            local_dict[(i + idx) % sample_num] = public_keys_dict[(i + idx) % sample_num]
 
     return client, client.share_keys(ShareKeysIns(public_keys_dict=local_dict))
 
@@ -899,16 +924,44 @@ def ask_vectors_client(client: ClientProxy, forward_packet_list: List[ShareKeysP
     ClientProxy, AskVectorsRes]:
     return client, client.ask_vectors(AskVectorsIns(ask_vectors_in_list=forward_packet_list, fit_ins=fit_ins))
 
+def consistency_checks(clients:Dict[int, ClientProxy]):
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        futures = futures = [
+            executor.submit(
+                lambda p: consistency_check_client(*p),
+                (client, idx, list(clients.keys())),
+            )
+            for idx, client in clients.items()
+        ]
+        concurrent.futures.wait(futures)
+    results: List[Tuple[ClientProxy, ConsistencyCheckRes]] = []
+    failures: List[BaseException] = []
+    for future in futures:
+        failure = future.exception()
+        if failure is not None:
+            failures.append(failure)
+        else:
+            # Success case
+            result = future.result()
+            results.append(result)
+    return results, failures
+
+def consistency_check_client(client: ClientProxy, idx: int, clients: List[ClientProxy]) -> Tuple[ClientProxy, ConsistencyCheckRes]:
+    consistency_check_res = client.consistency_checks(ConsistencyCheckIns(available_clients=clients))
+    return client, consistency_check_res
+
+
 
 def unmask_vectors(clients: Dict[int, ClientProxy],
                    dropout_clients: Dict[int, ClientProxy],
+                   signatures: Dict[int, bytes],
                    sample_num: int, share_num: int) -> UnmaskVectorsResultsAndFailures:
     with concurrent.futures.ThreadPoolExecutor() as executor:
         futures = [
             executor.submit(
                 lambda p: unmask_vectors_client(*p),
                 (client, idx, list(clients.keys()), list(
-                    dropout_clients.keys()), sample_num, share_num),
+                    dropout_clients.keys()), signatures, sample_num, share_num),
             )
             for idx, client in clients.items()
         ]
@@ -927,11 +980,11 @@ def unmask_vectors(clients: Dict[int, ClientProxy],
 
 
 def unmask_vectors_client(client: ClientProxy, idx: int, clients: List[ClientProxy], dropout_clients: List[ClientProxy],
-                          sample_num: int, share_num: int) -> Tuple[ClientProxy, UnmaskVectorsRes]:
+                          signatures: Dict[int, bytes],sample_num: int, share_num: int) -> Tuple[ClientProxy, UnmaskVectorsRes]:
     if share_num == sample_num:
         # complete graph
-        return client, client.unmask_vectors(
-            UnmaskVectorsIns(available_clients=clients, dropout_clients=dropout_clients))
+        return client, client.unmask_vectors(UnmaskVectorsIns(signatures=signatures, available_clients=clients,
+                                                              dropout_clients=dropout_clients))
     local_clients: List[int] = []
     local_dropout_clients: List[int] = []
     for i in range(-int(share_num / 2), int(share_num / 2) + 1):
@@ -939,5 +992,5 @@ def unmask_vectors_client(client: ClientProxy, idx: int, clients: List[ClientPro
             local_clients.append((i + idx) % sample_num)
         if ((i + idx) % sample_num) in dropout_clients:
             local_dropout_clients.append((i + idx) % sample_num)
-    return client, client.unmask_vectors(
-        UnmaskVectorsIns(available_clients=local_clients, dropout_clients=local_dropout_clients))
+    return client, client.unmask_vectors(UnmaskVectorsIns(signatures=signatures, available_clients=local_clients,
+                                                          dropout_clients=local_dropout_clients))

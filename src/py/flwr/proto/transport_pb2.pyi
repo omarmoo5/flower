@@ -344,15 +344,21 @@ class ServerMessage(google.protobuf.message.Message):
 
                 PK1_FIELD_NUMBER: builtins.int
                 PK2_FIELD_NUMBER: builtins.int
+                SIGNATURE_FIELD_NUMBER: builtins.int
+                SIG_PUB_FIELD_NUMBER: builtins.int
                 pk1: builtins.bytes
                 pk2: builtins.bytes
+                signature: builtins.bytes
+                sig_pub: builtins.bytes
                 def __init__(
                     self,
                     *,
                     pk1: builtins.bytes = ...,
                     pk2: builtins.bytes = ...,
+                    signature: builtins.bytes = ...,
+                    sig_pub: builtins.bytes = ...,
                 ) -> None: ...
-                def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2"]) -> None: ...
+                def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2", "sig_pub", b"sig_pub", "signature", b"signature"]) -> None: ...
 
             @typing_extensions.final
             class PublicKeysDictEntry(google.protobuf.message.Message):
@@ -458,11 +464,44 @@ class ServerMessage(google.protobuf.message.Message):
             def ClearField(self, field_name: typing_extensions.Literal["fit_ins", b"fit_ins", "packet_list", b"packet_list"]) -> None: ...
 
         @typing_extensions.final
-        class UnmaskVectors(google.protobuf.message.Message):
+        class ConsistencyChecks(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
             AVAILABLE_CLIENTS_FIELD_NUMBER: builtins.int
+            @property
+            def available_clients(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
+            def __init__(
+                self,
+                *,
+                available_clients: collections.abc.Iterable[builtins.int] | None = ...,
+            ) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["available_clients", b"available_clients"]) -> None: ...
+
+        @typing_extensions.final
+        class UnmaskVectors(google.protobuf.message.Message):
+            DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+            @typing_extensions.final
+            class SignaturesEntry(google.protobuf.message.Message):
+                DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+                KEY_FIELD_NUMBER: builtins.int
+                VALUE_FIELD_NUMBER: builtins.int
+                key: builtins.int
+                value: builtins.bytes
+                def __init__(
+                    self,
+                    *,
+                    key: builtins.int = ...,
+                    value: builtins.bytes = ...,
+                ) -> None: ...
+                def ClearField(self, field_name: typing_extensions.Literal["key", b"key", "value", b"value"]) -> None: ...
+
+            SIGNATURES_FIELD_NUMBER: builtins.int
+            AVAILABLE_CLIENTS_FIELD_NUMBER: builtins.int
             DROPOUT_CLIENTS_FIELD_NUMBER: builtins.int
+            @property
+            def signatures(self) -> google.protobuf.internal.containers.ScalarMap[builtins.int, builtins.bytes]: ...
             @property
             def available_clients(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]: ...
             @property
@@ -470,15 +509,17 @@ class ServerMessage(google.protobuf.message.Message):
             def __init__(
                 self,
                 *,
+                signatures: collections.abc.Mapping[builtins.int, builtins.bytes] | None = ...,
                 available_clients: collections.abc.Iterable[builtins.int] | None = ...,
                 dropout_clients: collections.abc.Iterable[builtins.int] | None = ...,
             ) -> None: ...
-            def ClearField(self, field_name: typing_extensions.Literal["available_clients", b"available_clients", "dropout_clients", b"dropout_clients"]) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["available_clients", b"available_clients", "dropout_clients", b"dropout_clients", "signatures", b"signatures"]) -> None: ...
 
         SETUP_PARAM_FIELD_NUMBER: builtins.int
         ASK_KEYS_FIELD_NUMBER: builtins.int
         SHARE_KEYS_FIELD_NUMBER: builtins.int
         ASK_VECTORS_FIELD_NUMBER: builtins.int
+        CONSISTENCY_CHECKS_FIELD_NUMBER: builtins.int
         UNMASK_VECTORS_FIELD_NUMBER: builtins.int
         @property
         def setup_param(self) -> global___ServerMessage.SecAggMsg.SetupParam: ...
@@ -489,6 +530,8 @@ class ServerMessage(google.protobuf.message.Message):
         @property
         def ask_vectors(self) -> global___ServerMessage.SecAggMsg.AskVectors: ...
         @property
+        def consistency_checks(self) -> global___ServerMessage.SecAggMsg.ConsistencyChecks: ...
+        @property
         def unmask_vectors(self) -> global___ServerMessage.SecAggMsg.UnmaskVectors: ...
         def __init__(
             self,
@@ -497,11 +540,12 @@ class ServerMessage(google.protobuf.message.Message):
             ask_keys: global___ServerMessage.SecAggMsg.AskKeys | None = ...,
             share_keys: global___ServerMessage.SecAggMsg.ShareKeys | None = ...,
             ask_vectors: global___ServerMessage.SecAggMsg.AskVectors | None = ...,
+            consistency_checks: global___ServerMessage.SecAggMsg.ConsistencyChecks | None = ...,
             unmask_vectors: global___ServerMessage.SecAggMsg.UnmaskVectors | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["ask_keys", b"ask_keys", "ask_vectors", b"ask_vectors", "msg", b"msg", "setup_param", b"setup_param", "share_keys", b"share_keys", "unmask_vectors", b"unmask_vectors"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["ask_keys", b"ask_keys", "ask_vectors", b"ask_vectors", "msg", b"msg", "setup_param", b"setup_param", "share_keys", b"share_keys", "unmask_vectors", b"unmask_vectors"]) -> None: ...
-        def WhichOneof(self, oneof_group: typing_extensions.Literal["msg", b"msg"]) -> typing_extensions.Literal["setup_param", "ask_keys", "share_keys", "ask_vectors", "unmask_vectors"] | None: ...
+        def HasField(self, field_name: typing_extensions.Literal["ask_keys", b"ask_keys", "ask_vectors", b"ask_vectors", "consistency_checks", b"consistency_checks", "msg", b"msg", "setup_param", b"setup_param", "share_keys", b"share_keys", "unmask_vectors", b"unmask_vectors"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["ask_keys", b"ask_keys", "ask_vectors", b"ask_vectors", "consistency_checks", b"consistency_checks", "msg", b"msg", "setup_param", b"setup_param", "share_keys", b"share_keys", "unmask_vectors", b"unmask_vectors"]) -> None: ...
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["msg", b"msg"]) -> typing_extensions.Literal["setup_param", "ask_keys", "share_keys", "ask_vectors", "consistency_checks", "unmask_vectors"] | None: ...
 
     RECONNECT_INS_FIELD_NUMBER: builtins.int
     GET_PROPERTIES_INS_FIELD_NUMBER: builtins.int
@@ -715,15 +759,21 @@ class ClientMessage(google.protobuf.message.Message):
 
             PK1_FIELD_NUMBER: builtins.int
             PK2_FIELD_NUMBER: builtins.int
+            SIGNATURE_FIELD_NUMBER: builtins.int
+            SIG_PUB_FIELD_NUMBER: builtins.int
             pk1: builtins.bytes
             pk2: builtins.bytes
+            signature: builtins.bytes
+            sig_pub: builtins.bytes
             def __init__(
                 self,
                 *,
                 pk1: builtins.bytes = ...,
                 pk2: builtins.bytes = ...,
+                signature: builtins.bytes = ...,
+                sig_pub: builtins.bytes = ...,
             ) -> None: ...
-            def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2"]) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["pk1", b"pk1", "pk2", b"pk2", "sig_pub", b"sig_pub", "signature", b"signature"]) -> None: ...
 
         @typing_extensions.final
         class ShareKeysRes(google.protobuf.message.Message):
@@ -774,6 +824,19 @@ class ClientMessage(google.protobuf.message.Message):
             def ClearField(self, field_name: typing_extensions.Literal["parameters", b"parameters"]) -> None: ...
 
         @typing_extensions.final
+        class ConsistencyChecksRes(google.protobuf.message.Message):
+            DESCRIPTOR: google.protobuf.descriptor.Descriptor
+
+            SIGNATURE_FIELD_NUMBER: builtins.int
+            signature: builtins.bytes
+            def __init__(
+                self,
+                *,
+                signature: builtins.bytes = ...,
+            ) -> None: ...
+            def ClearField(self, field_name: typing_extensions.Literal["signature", b"signature"]) -> None: ...
+
+        @typing_extensions.final
         class UnmaskVectorsRes(google.protobuf.message.Message):
             DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -820,6 +883,7 @@ class ClientMessage(google.protobuf.message.Message):
         ASK_KEYS_RES_FIELD_NUMBER: builtins.int
         SHARE_KEYS_RES_FIELD_NUMBER: builtins.int
         ASK_VECTORS_RES_FIELD_NUMBER: builtins.int
+        CONSISTENCY_CHECKS_RES_FIELD_NUMBER: builtins.int
         UNMASK_VECTORS_RES_FIELD_NUMBER: builtins.int
         ERROR_RES_FIELD_NUMBER: builtins.int
         @property
@@ -831,6 +895,8 @@ class ClientMessage(google.protobuf.message.Message):
         @property
         def ask_vectors_res(self) -> global___ClientMessage.SecAggRes.AskVectorsRes: ...
         @property
+        def consistency_checks_res(self) -> global___ClientMessage.SecAggRes.ConsistencyChecksRes: ...
+        @property
         def unmask_vectors_res(self) -> global___ClientMessage.SecAggRes.UnmaskVectorsRes: ...
         @property
         def error_res(self) -> global___ClientMessage.SecAggRes.ErrorRes: ...
@@ -841,12 +907,13 @@ class ClientMessage(google.protobuf.message.Message):
             ask_keys_res: global___ClientMessage.SecAggRes.AskKeysRes | None = ...,
             share_keys_res: global___ClientMessage.SecAggRes.ShareKeysRes | None = ...,
             ask_vectors_res: global___ClientMessage.SecAggRes.AskVectorsRes | None = ...,
+            consistency_checks_res: global___ClientMessage.SecAggRes.ConsistencyChecksRes | None = ...,
             unmask_vectors_res: global___ClientMessage.SecAggRes.UnmaskVectorsRes | None = ...,
             error_res: global___ClientMessage.SecAggRes.ErrorRes | None = ...,
         ) -> None: ...
-        def HasField(self, field_name: typing_extensions.Literal["ask_keys_res", b"ask_keys_res", "ask_vectors_res", b"ask_vectors_res", "error_res", b"error_res", "msg", b"msg", "setup_param_res", b"setup_param_res", "share_keys_res", b"share_keys_res", "unmask_vectors_res", b"unmask_vectors_res"]) -> builtins.bool: ...
-        def ClearField(self, field_name: typing_extensions.Literal["ask_keys_res", b"ask_keys_res", "ask_vectors_res", b"ask_vectors_res", "error_res", b"error_res", "msg", b"msg", "setup_param_res", b"setup_param_res", "share_keys_res", b"share_keys_res", "unmask_vectors_res", b"unmask_vectors_res"]) -> None: ...
-        def WhichOneof(self, oneof_group: typing_extensions.Literal["msg", b"msg"]) -> typing_extensions.Literal["setup_param_res", "ask_keys_res", "share_keys_res", "ask_vectors_res", "unmask_vectors_res", "error_res"] | None: ...
+        def HasField(self, field_name: typing_extensions.Literal["ask_keys_res", b"ask_keys_res", "ask_vectors_res", b"ask_vectors_res", "consistency_checks_res", b"consistency_checks_res", "error_res", b"error_res", "msg", b"msg", "setup_param_res", b"setup_param_res", "share_keys_res", b"share_keys_res", "unmask_vectors_res", b"unmask_vectors_res"]) -> builtins.bool: ...
+        def ClearField(self, field_name: typing_extensions.Literal["ask_keys_res", b"ask_keys_res", "ask_vectors_res", b"ask_vectors_res", "consistency_checks_res", b"consistency_checks_res", "error_res", b"error_res", "msg", b"msg", "setup_param_res", b"setup_param_res", "share_keys_res", b"share_keys_res", "unmask_vectors_res", b"unmask_vectors_res"]) -> None: ...
+        def WhichOneof(self, oneof_group: typing_extensions.Literal["msg", b"msg"]) -> typing_extensions.Literal["setup_param_res", "ask_keys_res", "share_keys_res", "ask_vectors_res", "consistency_checks_res", "unmask_vectors_res", "error_res"] | None: ...
 
     DISCONNECT_RES_FIELD_NUMBER: builtins.int
     GET_PROPERTIES_RES_FIELD_NUMBER: builtins.int

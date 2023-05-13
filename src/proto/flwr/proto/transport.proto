@@ -67,6 +67,8 @@ message ServerMessage {
       message KeysPair{
         bytes pk1=1;
         bytes pk2=2;
+        bytes signature=3;
+        bytes sig_pub=4;
       }
       map<int64, KeysPair> public_keys_dict=1;
     }
@@ -75,6 +77,7 @@ message ServerMessage {
         int64 source=1;
         int64 destination=2;
         bytes ciphertext=3;
+
       }
       message FitIns {
         Parameters parameters = 1;
@@ -83,16 +86,21 @@ message ServerMessage {
       repeated Packet packet_list=1;
       FitIns fit_ins=2;
     }
-    message UnmaskVectors{
+    message ConsistencyChecks{
       repeated int64 available_clients=1;
-      repeated int64 dropout_clients=2;
+    }
+    message UnmaskVectors{
+      map<int64,bytes> signatures=1;
+      repeated int64 available_clients=2;
+      repeated int64 dropout_clients=3;
     }
     oneof msg{
       SetupParam setup_param=1;
       AskKeys ask_keys=2;
       ShareKeys share_keys=3;
       AskVectors ask_vectors=4;
-      UnmaskVectors unmask_vectors=5;
+      ConsistencyChecks consistency_checks = 5;
+      UnmaskVectors unmask_vectors=6;
     }
   }
   oneof msg {
@@ -132,6 +140,8 @@ message ClientMessage {
     message AskKeysRes{
         bytes pk1=1;
         bytes pk2=2;
+        bytes signature = 3;
+        bytes sig_pub = 4;
     }
     message ShareKeysRes{
       message Packet{
@@ -144,6 +154,9 @@ message ClientMessage {
     message AskVectorsRes{
       Parameters parameters = 1;
     }
+    message ConsistencyChecksRes{
+      bytes signature =1;
+    }
     message UnmaskVectorsRes{
       map<int64,bytes> share_dict=1;
     }
@@ -155,8 +168,9 @@ message ClientMessage {
       AskKeysRes ask_keys_res=2;
       ShareKeysRes share_keys_res=3;
       AskVectorsRes ask_vectors_res=4;
-      UnmaskVectorsRes unmask_vectors_res=5;
-      ErrorRes error_res=6;
+      ConsistencyChecksRes consistency_checks_res = 5;
+      UnmaskVectorsRes unmask_vectors_res=6;
+      ErrorRes error_res=7;
     }
   }
   oneof msg {

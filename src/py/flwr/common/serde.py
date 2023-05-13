@@ -349,11 +349,14 @@ def ask_keys_ins_from_proto(ask_keys_msg: ServerMessage.SecAggMsg) -> typing.Ask
 
 
 def ask_keys_res_to_proto(res: typing.AskKeysRes) -> ClientMessage.SecAggRes:
-    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1, pk2=res.pk2))
+    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1,
+                                                                                   pk2=res.pk2,
+                                                                                   signature=res.signature,
+                                                                                   sig_pub=res.sig_pub))
 
 
 def ask_keys_res_from_proto(msg: ClientMessage.SecAggRes) -> typing.AskKeysRes:
-    return typing.AskKeysRes(pk1=msg.ask_keys_res.pk1, pk2=msg.ask_keys_res.pk2)
+    return typing.AskKeysRes(pk1=msg.ask_keys_res.pk1, pk2=msg.ask_keys_res.pk2,signature=msg.ask_keys_res.signature,sig_pub=msg.ask_keys_res.sig_pub)
 
 
 # === Share Keys ===
@@ -361,9 +364,11 @@ def share_keys_ins_to_proto(share_keys_ins: typing.ShareKeysIns) -> ServerMessag
     public_keys_dict = share_keys_ins.public_keys_dict
     proto_public_keys_dict = {}
     for i in public_keys_dict.keys():
-        proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(
-            pk1=public_keys_dict[i].pk1, pk2=public_keys_dict[i].pk2
-        )
+        proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(pk1=public_keys_dict[i].pk1,
+                                                                               pk2=public_keys_dict[i].pk2,
+                                                                               signature=public_keys_dict[i].signature,
+                                                                               sig_pub=public_keys_dict[i].sig_pub
+                                                                               )
     return ServerMessage.SecAggMsg(
         share_keys=ServerMessage.SecAggMsg.ShareKeys(
             public_keys_dict=proto_public_keys_dict
@@ -375,8 +380,10 @@ def share_keys_ins_from_proto(share_keys_msg: ServerMessage.SecAggMsg) -> typing
     proto_public_keys_dict = share_keys_msg.share_keys.public_keys_dict
     public_keys_dict = {}
     for i in proto_public_keys_dict.keys():
-        public_keys_dict[i] = typing.AskKeysRes(
-            pk1=proto_public_keys_dict[i].pk1, pk2=proto_public_keys_dict[i].pk2)
+        public_keys_dict[i] = typing.AskKeysRes(pk1=proto_public_keys_dict[i].pk1,
+                                                pk2=proto_public_keys_dict[i].pk2,
+                                                signature=proto_public_keys_dict[i].signature,
+                                                sig_pub=proto_public_keys_dict[i].sig_pub)
     return typing.ShareKeysIns(public_keys_dict=public_keys_dict)
 
 
@@ -442,15 +449,28 @@ def ask_vectors_res_from_proto(ask_vectors_res_msg: ClientMessage.SecAggRes) -> 
 
 # === Unmask Vectors ===
 
+def consistency_checks_ins_to_proto(consistency_checks_ins: typing.ConsistencyCheckIns) -> ServerMessage.SecAggMsg:
+    return ServerMessage.SecAggMsg(consistency_checks=ServerMessage.SecAggMsg.ConsistencyChecks(available_clients=consistency_checks_ins.available_clients))
+def consistency_checks_ins_from_proto(consistency_check_ins: ServerMessage.SecAggMsg) ->typing.ConsistencyCheckIns:
+    return typing.ConsistencyCheckIns(available_clients=consistency_check_ins.consistency_checks.available_clients)
+
+def consistency_checks_res_to_proto(consistency_checks_res: typing.ConsistencyCheckRes) -> ClientMessage.SecAggRes :
+    return ClientMessage.SecAggRes(consistency_checks_res= ClientMessage.SecAggRes.ConsistencyChecksRes(signature=consistency_checks_res.signature))
+def consistency_checks_res_from_proto(consistency_checks_res: ClientMessage.SecAggRes) -> typing.ConsistencyCheckRes:
+    return typing.ConsistencyCheckRes(signature=consistency_checks_res.consistency_checks_res.signature)
+
+
 
 def unmask_vectors_ins_to_proto(unmask_vectors_ins: typing.UnmaskVectorsIns) -> ServerMessage.SecAggMsg:
     return ServerMessage.SecAggMsg(unmask_vectors=ServerMessage.SecAggMsg.UnmaskVectors(
+        signatures=unmask_vectors_ins.signatures,
         available_clients=unmask_vectors_ins.available_clients,
         dropout_clients=unmask_vectors_ins.dropout_clients))
 
 
 def unmask_vectors_ins_from_proto(unmask_vectors_ins: ServerMessage.SecAggMsg) -> typing.UnmaskVectorsIns:
     return typing.UnmaskVectorsIns(
+        signatures=unmask_vectors_ins.unmask_vectors.signatures,
         available_clients=unmask_vectors_ins.unmask_vectors.available_clients,
         dropout_clients=unmask_vectors_ins.unmask_vectors.dropout_clients)
 

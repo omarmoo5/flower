@@ -15,6 +15,7 @@
 from __future__ import division
 from __future__ import print_function
 import math
+import multiprocessing
 from logging import WARNING, log
 import functools
 from typing import List, Tuple
@@ -24,13 +25,15 @@ from cryptography.hazmat.primitives.kdf.hkdf import HKDF
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import serialization
 import base64
-from Crypto.Util.Padding import pad, unpad
-from Crypto.Protocol.SecretSharing import Shamir
+from Cryptodome.Util.Padding import pad, unpad
+from Cryptodome.Protocol.SecretSharing import Shamir
 from concurrent.futures import ThreadPoolExecutor
 import os
 import random
 import pickle
 import numpy as np
+import rsa
+
 
 from numpy.core.fromnumeric import clip
 
@@ -41,7 +44,22 @@ from flwr.common.typing import NDArrays
 # Generate private and public key pairs with Cryptography
 
 
+def signMsg(msg: bytes, priv_key):
+    signature = priv_key.sign(
+
+    msg,
+
+    ec.ECDSA(hashes.SHA256())
+
+)
+    return signature
+
+def verifySig(msg: bytes, signature: bytes, pub_key):
+    return pub_key.verify(signature, msg, ec.ECDSA(hashes.SHA256()))
+
+
 def generate_key_pairs() -> Tuple[ec.EllipticCurvePrivateKey, ec.EllipticCurvePublicKey]:
+
     sk = ec.generate_private_key(ec.SECP384R1())
     pk = sk.public_key()
     return sk, pk
