@@ -57,7 +57,7 @@ class SecAggClient(NumPyClient):
     def ask_vectors(self, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
         return sec_agg_client_logic.ask_vectors(self, ask_vectors_ins)
 
-    def consistency_checks(self , consistency_checks_ins : ConsistencyCheckIns) -> ConsistencyCheckRes:
+    def consistency_checks(self, consistency_checks_ins: ConsistencyCheckIns) -> ConsistencyCheckRes:
         return sec_agg_client_logic.consistency_checks(self, consistency_checks_ins)
 
     def unmask_vectors(self, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVectorsRes:

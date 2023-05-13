@@ -16,7 +16,7 @@ import pickle
 import timeit
 from logging import ERROR, INFO, WARNING
 from typing import Dict, List, Tuple
-
+import numpy
 from flwr.common.logger import log
 from flwr.common.parameter import ndarrays_to_parameters, parameters_to_ndarrays
 from flwr.common.sec_agg import sec_agg_primitives
