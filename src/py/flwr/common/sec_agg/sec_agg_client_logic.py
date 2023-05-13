@@ -90,6 +90,7 @@ def share_keys(client, share_keys_in: ShareKeysIns) -> ShareKeysRes:
     # Distribute shares for private mask seed and first private key
 
     client.public_keys_dict = share_keys_in.public_keys_dict
+
     # check size is larger than threshold
     if len(client.public_keys_dict) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
@@ -259,6 +260,14 @@ def unmask_vectors(client, unmask_vectors_ins: UnmaskVectorsIns) -> UnmaskVector
     # Send first private key share for building pairwise mask for every dropped client
     signatures = unmask_vectors_ins.signatures
     available_clients = unmask_vectors_ins.available_clients
+    msg = bytes(available_clients)
+
+    for i in available_clients:
+        pk= sec_agg_primitives.bytes_to_public_key(client.public_keys_dict[i].sig_pub)
+        sec_agg_primitives.verifySig(msg,signatures[i],pk)
+
+
+
     if len(available_clients) < client.threshold:
         raise Exception("Available neighbours number smaller than threshold")
     dropout_clients = unmask_vectors_ins.dropout_clients
