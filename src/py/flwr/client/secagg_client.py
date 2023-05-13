@@ -17,18 +17,12 @@ from typing import Dict, Tuple
 from flwr.client import NumPyClient
 from flwr.common import (
     AskKeysRes,
-    EvaluateIns,
-    EvaluateRes,
-    FitIns,
-    FitRes,
-    GetParametersRes,
-
 )
 from flwr.common.sec_agg import sec_agg_client_logic
 from flwr.common.typing import (AskKeysIns, AskVectorsIns,
                                 AskVectorsRes, SetupParamIns,
                                 ShareKeysIns, ShareKeysRes,
-                                UnmaskVectorsIns, UnmaskVectorsRes, GetParametersIns, NDArrays, Scalar, SetupParamRes)
+                                UnmaskVectorsIns, UnmaskVectorsRes, NDArrays, Scalar, SetupParamRes)
 
 
 class SecAggClient(NumPyClient):

@@ -691,7 +691,7 @@ class SecAggServer(Server):
         no_update_mask = (total_updated_ivs == 0)
         if any(no_update_mask):
             # Division by zero handling
-            log(WARNING, "Some Items didn't updated during this round")
+            log(WARNING, f"{no_update_mask.sum()} Items didn't updated during this round")
             total_updated_ivs[no_update_mask] = 1
             embeddings_t = parameters_to_ndarrays(self.parameters)[:2]
             for embedding_t, embedding_t_plus1 in zip(embeddings_t, aggregated_embeddings):
@@ -699,11 +699,6 @@ class SecAggServer(Server):
         aggregated_embeddings /= total_updated_ivs.reshape(-1, 1)
         # -----------------
         aggregated_parameters = ndarrays_to_parameters([i for i in aggregated_embeddings] + aggregated_weights)
-        total_time = total_time + timeit.default_timer()
-        f = open("log.txt", "a")
-        f.write(f"Server time without communication:{total_time} \n")
-        f.write(f"first element {aggregated_weights[0].flatten()[0]}\n\n\n")
-        f.close()
         return aggregated_parameters, [0], [0]
 
 
