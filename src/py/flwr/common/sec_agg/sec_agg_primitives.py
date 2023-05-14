@@ -33,6 +33,7 @@ import random
 import pickle
 import numpy as np
 import rsa
+from PRG import HMAC_DRBG
 
 
 from numpy.core.fromnumeric import clip
@@ -209,12 +210,16 @@ def rand_bytes(num: int = 32) -> bytes:
 
 
 def pseudo_rand_gen(seed: bytes, num_range: int, dimensions_list: List[Tuple]) -> NDArrays:
-    random.seed(seed)
     output = []
+    prg = HMAC_DRBG(seed)
     for dimension in dimensions_list:
-        flat_arr = np.array([random.randrange(0, num_range)
-                             for i in range(np.prod(dimension))])
-        modified_arr = np.reshape(flat_arr, dimension)
+        i = 0
+        length = 1
+        for i in range(len(dimension)):
+          length = length * dimension[i]
+        secret = prg.generate(length)
+        flat_arr = np.frombuffer(secret, dtype=np.int8)
+        modified_arr = flat_arr.reshape(dimension)
         output.append(modified_arr)
     return output
 
