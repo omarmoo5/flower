@@ -56,12 +56,60 @@ message ServerMessage {
     Parameters parameters = 1;
     map<string, Scalar> config = 2;
   }
+  message SecAggMsg{
+    message SetupParam{
+      map<string, Scalar> sec_agg_param_dict = 1;
+    }
+    message AskKeys{
+      map<string, Scalar> config = 1;
+    }
+    message ShareKeys{
+      message KeysPair{
+        bytes pk1=1;
+        bytes pk2=2;
+        bytes signature=3;
+        bytes sig_pub=4;
+      }
+      map<int64, KeysPair> public_keys_dict=1;
+    }
+    message AskVectors{
+      message Packet{
+        int64 source=1;
+        int64 destination=2;
+        bytes ciphertext=3;
+
+      }
+      message FitIns {
+        Parameters parameters = 1;
+        map<string, Scalar> config = 2;
+      }
+      repeated Packet packet_list=1;
+      FitIns fit_ins=2;
+    }
+    message ConsistencyChecks{
+      repeated int64 available_clients=1;
+    }
+    message UnmaskVectors{
+      map<int64,bytes> signatures=1;
+      repeated int64 available_clients=2;
+      repeated int64 dropout_clients=3;
+    }
+    oneof msg{
+      SetupParam setup_param=1;
+      AskKeys ask_keys=2;
+      ShareKeys share_keys=3;
+      AskVectors ask_vectors=4;
+      ConsistencyChecks consistency_checks = 5;
+      UnmaskVectors unmask_vectors=6;
+    }
+  }
   oneof msg {
     ReconnectIns reconnect_ins = 1;
     GetPropertiesIns get_properties_ins = 2;
     GetParametersIns get_parameters_ins = 3;
     FitIns fit_ins = 4;
     EvaluateIns evaluate_ins = 5;
+    SecAggMsg sec_agg_msg=6;
   }
 }
 
@@ -87,12 +135,51 @@ message ClientMessage {
     int64 num_examples = 3;
     map<string, Scalar> metrics = 4;
   }
+  message SecAggRes{
+    message SetupParamRes{}
+    message AskKeysRes{
+        bytes pk1=1;
+        bytes pk2=2;
+        bytes signature = 3;
+        bytes sig_pub = 4;
+    }
+    message ShareKeysRes{
+      message Packet{
+        int64 source=1;
+        int64 destination=2;
+        bytes ciphertext=3;
+      }
+      repeated Packet packet_list=1;
+    }
+    message AskVectorsRes{
+      Parameters parameters = 1;
+    }
+    message ConsistencyChecksRes{
+      bytes signature =1;
+    }
+    message UnmaskVectorsRes{
+      map<int64,bytes> share_dict=1;
+    }
+    message ErrorRes{
+      string error=1;
+    }
+    oneof msg{
+      SetupParamRes setup_param_res=1;
+      AskKeysRes ask_keys_res=2;
+      ShareKeysRes share_keys_res=3;
+      AskVectorsRes ask_vectors_res=4;
+      ConsistencyChecksRes consistency_checks_res = 5;
+      UnmaskVectorsRes unmask_vectors_res=6;
+      ErrorRes error_res=7;
+    }
+  }
   oneof msg {
     DisconnectRes disconnect_res = 1;
     GetPropertiesRes get_properties_res = 2;
     GetParametersRes get_parameters_res = 3;
     FitRes fit_res = 4;
     EvaluateRes evaluate_res = 5;
+    SecAggRes sec_agg_res=6;
   }
 }
 

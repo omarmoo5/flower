@@ -302,6 +302,186 @@ def fit_res_from_proto(msg: ClientMessage.FitRes) -> typing.FitRes:
     )
 
 
+# === SecAgg Messages ===
+# === Check if error ===
+def check_error(msg: ClientMessage.SecAggRes):
+    if msg.HasField("error_res"):
+        raise Exception(msg.error_res.error)
+
+
+# === Setup Param ===
+def setup_param_ins_to_proto(
+    setup_param_ins: typing.SetupParamIns,
+) -> ServerMessage.SecAggMsg:
+    return ServerMessage.SecAggMsg(
+        setup_param=ServerMessage.SecAggMsg.SetupParam(
+            sec_agg_param_dict=metrics_to_proto(setup_param_ins.sec_agg_param_dict)
+        )
+    )
+
+
+def setup_param_ins_from_proto(
+    setup_param_msg: ServerMessage.SecAggMsg,
+) -> typing.SetupParamIns:
+    return typing.SetupParamIns(
+        sec_agg_param_dict=metrics_from_proto(setup_param_msg.setup_param.sec_agg_param_dict)
+    )
+
+
+def setup_param_res_to_proto(setup_param_res: typing.SetupParamRes):
+    return ClientMessage.SecAggRes(
+        setup_param_res=ClientMessage.SecAggRes.SetupParamRes()
+    )
+
+
+def setup_param_res_from_proto(setup_param_res: ServerMessage.SecAggMsg) -> typing.SetupParamRes:
+    return typing.SetupParamRes()
+# === Ask Keys ===
+
+
+def ask_keys_ins_to_proto(Ask_keys_ins: typing.AskKeysIns) -> ServerMessage.SecAggMsg:
+    config_msg = metrics_to_proto({})
+    return ServerMessage.SecAggMsg(ask_keys=ServerMessage.SecAggMsg.AskKeys(config=config_msg))
+
+
+def ask_keys_ins_from_proto(ask_keys_msg: ServerMessage.SecAggMsg) -> typing.AskKeysIns:
+    return typing.AskKeysIns()
+
+
+def ask_keys_res_to_proto(res: typing.AskKeysRes) -> ClientMessage.SecAggRes:
+    return ClientMessage.SecAggRes(ask_keys_res=ClientMessage.SecAggRes.AskKeysRes(pk1=res.pk1,
+                                                                                   pk2=res.pk2,
+                                                                                   signature=res.signature,
+                                                                                   sig_pub=res.sig_pub))
+
+
+def ask_keys_res_from_proto(msg: ClientMessage.SecAggRes) -> typing.AskKeysRes:
+    return typing.AskKeysRes(pk1=msg.ask_keys_res.pk1, pk2=msg.ask_keys_res.pk2,signature=msg.ask_keys_res.signature,sig_pub=msg.ask_keys_res.sig_pub)
+
+
+# === Share Keys ===
+def share_keys_ins_to_proto(share_keys_ins: typing.ShareKeysIns) -> ServerMessage.SecAggMsg:
+    public_keys_dict = share_keys_ins.public_keys_dict
+    proto_public_keys_dict = {}
+    for i in public_keys_dict.keys():
+        proto_public_keys_dict[i] = ServerMessage.SecAggMsg.ShareKeys.KeysPair(pk1=public_keys_dict[i].pk1,
+                                                                               pk2=public_keys_dict[i].pk2,
+                                                                               signature=public_keys_dict[i].signature,
+                                                                               sig_pub=public_keys_dict[i].sig_pub
+                                                                               )
+    return ServerMessage.SecAggMsg(
+        share_keys=ServerMessage.SecAggMsg.ShareKeys(
+            public_keys_dict=proto_public_keys_dict
+        )
+    )
+
+
+def share_keys_ins_from_proto(share_keys_msg: ServerMessage.SecAggMsg) -> typing.ShareKeysIns:
+    proto_public_keys_dict = share_keys_msg.share_keys.public_keys_dict
+    public_keys_dict = {}
+    for i in proto_public_keys_dict.keys():
+        public_keys_dict[i] = typing.AskKeysRes(pk1=proto_public_keys_dict[i].pk1,
+                                                pk2=proto_public_keys_dict[i].pk2,
+                                                signature=proto_public_keys_dict[i].signature,
+                                                sig_pub=proto_public_keys_dict[i].sig_pub)
+    return typing.ShareKeysIns(public_keys_dict=public_keys_dict)
+
+
+def share_keys_res_to_proto(share_keys_res: typing.ShareKeysRes) -> ClientMessage.SecAggRes:
+    share_keys_res_msg = ClientMessage.SecAggRes.ShareKeysRes()
+    for packet in share_keys_res.share_keys_res_list:
+        #print(("send stage 2", len(packet.ciphertext)))
+        proto_packet = ClientMessage.SecAggRes.ShareKeysRes.Packet(
+            source=packet.source, destination=packet.destination, ciphertext=packet.ciphertext
+        )
+        share_keys_res_msg.packet_list.append(proto_packet)
+    return ClientMessage.SecAggRes(share_keys_res=share_keys_res_msg)
+
+
+def share_keys_res_from_proto(share_keys_res_msg: ClientMessage.SecAggRes) -> typing.ShareKeysRes:
+    proto_packet_list = share_keys_res_msg.share_keys_res.packet_list
+    packet_list = []
+    for proto_packet in proto_packet_list:
+        packet = typing.ShareKeysPacket(
+            source=proto_packet.source, destination=proto_packet.destination, ciphertext=proto_packet.ciphertext
+        )
+        #print(("receive stage 2", len(packet.ciphertext)))
+        packet_list.append(packet)
+    return typing.ShareKeysRes(share_keys_res_list=packet_list)
+
+# === Ask vectors ===
+
+
+def ask_vectors_ins_to_proto(ask_vectors_ins: typing.AskVectorsIns) -> ServerMessage.SecAggMsg:
+    packet_list = ask_vectors_ins.ask_vectors_in_list
+    proto_packet_list = []
+    for packet in packet_list:
+        proto_packet = ServerMessage.SecAggMsg.AskVectors.Packet(
+            source=packet.source, destination=packet.destination, ciphertext=packet.ciphertext)
+        #print(("send stage 3", len(packet.ciphertext)))
+        proto_packet_list.append(proto_packet)
+    fit_ins = ServerMessage.SecAggMsg.AskVectors.FitIns(parameters=parameters_to_proto(
+        ask_vectors_ins.fit_ins.parameters), config=metrics_to_proto(ask_vectors_ins.fit_ins.config))
+    return ServerMessage.SecAggMsg(ask_vectors=ServerMessage.SecAggMsg.AskVectors(packet_list=proto_packet_list, fit_ins=fit_ins))
+
+
+def ask_vectors_ins_from_proto(ask_vectors_msg: ServerMessage.SecAggMsg) -> typing.AskVectorsIns:
+    proto_packet_list = ask_vectors_msg.ask_vectors.packet_list
+    packet_list = []
+    for proto_packet in proto_packet_list:
+        packet = typing.ShareKeysPacket(
+            source=proto_packet.source, destination=proto_packet.destination, ciphertext=proto_packet.ciphertext)
+        #print(("receive stage 3", len(proto_packet.ciphertext)))
+        packet_list.append(packet)
+    fit_ins = typing.FitIns(parameters=parameters_from_proto(
+        ask_vectors_msg.ask_vectors.fit_ins.parameters), config=metrics_from_proto(ask_vectors_msg.ask_vectors.fit_ins.config))
+    return typing.AskVectorsIns(ask_vectors_in_list=packet_list, fit_ins=fit_ins)
+
+
+def ask_vectors_res_to_proto(ask_vectors_res: typing.AskVectorsRes) -> ClientMessage.SecAggRes:
+    parameters_proto = parameters_to_proto(ask_vectors_res.parameters)
+    return ClientMessage.SecAggRes(ask_vectors_res=ClientMessage.SecAggRes.AskVectorsRes(parameters=parameters_proto))
+
+
+def ask_vectors_res_from_proto(ask_vectors_res_msg: ClientMessage.SecAggRes) -> typing.AskVectorsRes:
+    parameters = parameters_from_proto(ask_vectors_res_msg.ask_vectors_res.parameters)
+    return typing.AskVectorsRes(parameters=parameters)
+
+# === Unmask Vectors ===
+
+def consistency_checks_ins_to_proto(consistency_checks_ins: typing.ConsistencyCheckIns) -> ServerMessage.SecAggMsg:
+    return ServerMessage.SecAggMsg(consistency_checks=ServerMessage.SecAggMsg.ConsistencyChecks(available_clients=consistency_checks_ins.available_clients))
+def consistency_checks_ins_from_proto(consistency_check_ins: ServerMessage.SecAggMsg) ->typing.ConsistencyCheckIns:
+    return typing.ConsistencyCheckIns(available_clients=consistency_check_ins.consistency_checks.available_clients)
+
+def consistency_checks_res_to_proto(consistency_checks_res: typing.ConsistencyCheckRes) -> ClientMessage.SecAggRes :
+    return ClientMessage.SecAggRes(consistency_checks_res= ClientMessage.SecAggRes.ConsistencyChecksRes(signature=consistency_checks_res.signature))
+def consistency_checks_res_from_proto(consistency_checks_res: ClientMessage.SecAggRes) -> typing.ConsistencyCheckRes:
+    return typing.ConsistencyCheckRes(signature=consistency_checks_res.consistency_checks_res.signature)
+
+
+
+def unmask_vectors_ins_to_proto(unmask_vectors_ins: typing.UnmaskVectorsIns) -> ServerMessage.SecAggMsg:
+    return ServerMessage.SecAggMsg(unmask_vectors=ServerMessage.SecAggMsg.UnmaskVectors(
+        signatures=unmask_vectors_ins.signatures,
+        available_clients=unmask_vectors_ins.available_clients,
+        dropout_clients=unmask_vectors_ins.dropout_clients))
+
+
+def unmask_vectors_ins_from_proto(unmask_vectors_ins: ServerMessage.SecAggMsg) -> typing.UnmaskVectorsIns:
+    return typing.UnmaskVectorsIns(
+        signatures=unmask_vectors_ins.unmask_vectors.signatures,
+        available_clients=unmask_vectors_ins.unmask_vectors.available_clients,
+        dropout_clients=unmask_vectors_ins.unmask_vectors.dropout_clients)
+
+
+def unmask_vectors_res_to_proto(unmask_vectors_res: typing.UnmaskVectorsRes) -> ClientMessage.SecAggRes:
+    return ClientMessage.SecAggRes(unmask_vectors_res=ClientMessage.SecAggRes.UnmaskVectorsRes(
+        share_dict=unmask_vectors_res.share_dict))
+
+
+def unmask_vectors_res_from_proto(unmask_vectors_res: ClientMessage.SecAggRes) -> typing.UnmaskVectorsRes:
+    return typing.UnmaskVectorsRes(share_dict=unmask_vectors_res.unmask_vectors_res.share_dict)
 # === GetProperties messages ===
 
 

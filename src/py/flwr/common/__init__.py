@@ -25,7 +25,7 @@ from .parameter import ndarrays_to_parameters as ndarrays_to_parameters
 from .parameter import parameters_to_ndarrays as parameters_to_ndarrays
 from .telemetry import EventType as EventType
 from .telemetry import event as event
-from .typing import ClientMessage as ClientMessage
+from .typing import ClientMessage as ClientMessage, AskKeysRes
 from .typing import Code as Code
 from .typing import Config as Config
 from .typing import DisconnectRes as DisconnectRes
@@ -81,4 +81,5 @@ __all__ = [
     "Scalar",
     "ServerMessage",
     "Status",
+    "AskKeysRes",
 ]

@@ -14,7 +14,6 @@
 # ==============================================================================
 """Flower type definitions."""
 
-
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Callable, Dict, List, Optional, Tuple, Union
@@ -161,3 +160,79 @@ class ClientMessage:
     get_parameters_res: Optional[GetParametersRes] = None
     fit_res: Optional[FitRes] = None
     evaluate_res: Optional[EvaluateRes] = None
+
+
+@dataclass
+class AskKeysIns:
+    pass
+
+
+@dataclass
+class AskKeysRes:
+    """Ask Keys Stage Response from client to server"""
+    pk1: bytes
+    pk2: bytes
+    signature: bytes
+    sig_pub: bytes
+
+
+
+@dataclass
+class ShareKeysPacket:
+    source: int
+    destination: int
+    ciphertext: bytes
+
+
+@dataclass
+class AskVectorsIns:
+    ask_vectors_in_list: List[ShareKeysPacket]
+    fit_ins: FitIns
+
+
+@dataclass
+class AskVectorsRes:
+    parameters: Parameters
+
+
+@dataclass
+class SetupParamIns:
+    sec_agg_param_dict: Dict[str, Scalar]
+
+
+@dataclass
+class SetupParamRes:
+    pass
+
+
+@dataclass
+class ShareKeysIns:
+    public_keys_dict: Dict[int, AskKeysRes]
+
+
+@dataclass
+class ShareKeysRes:
+    share_keys_res_list: List[ShareKeysPacket]
+
+
+
+@dataclass
+class ConsistencyCheckIns:
+    available_clients: List[int]
+
+
+@dataclass
+class ConsistencyCheckRes:
+    signature: bytes
+
+
+@dataclass
+class UnmaskVectorsIns:
+    signatures: Dict[int, bytes]
+    available_clients: List[int]
+    dropout_clients: List[int]
+
+
+@dataclass
+class UnmaskVectorsRes:
+    share_dict: Dict[int, bytes]
