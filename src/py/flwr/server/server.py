@@ -716,9 +716,9 @@ class SecAggServer(Server):
             embeddings_t = parameters_to_ndarrays(self.parameters)[:2]
             for embedding_t, embedding_t_plus1 in zip(embeddings_t, aggregated_embeddings):
                 embedding_t_plus1[no_update_mask] = embedding_t[no_update_mask]
-        aggregated_embeddings /= total_updated_ivs.reshape(-1, 1)
+        aggregated_embeddings = [emb/total_updated_ivs.reshape(-1, 1) for emb in aggregated_embeddings]
         # -----------------
-        aggregated_parameters = ndarrays_to_parameters([i for i in aggregated_embeddings] + aggregated_weights)
+        aggregated_parameters = ndarrays_to_parameters([*aggregated_embeddings + aggregated_weights])
         return aggregated_parameters, [0], [0]
 
 
