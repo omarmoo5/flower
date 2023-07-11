@@ -192,7 +192,7 @@ def ask_vectors(client, ask_vectors_ins: AskVectorsIns) -> AskVectorsRes:
     loss = metrics["loss"]
     weights, embeddings = weights[2:], weights[:2]
     updated_iv = numpy.array(list(metrics["updated_items"]))
-    embeddings = embeddings * updated_iv.reshape(-1, 1)
+    embeddings = [embedding * updated_iv.reshape(-1, 1) for embedding in embeddings]
     updated_iv = [updated_iv, *embeddings]
 
     # fit_res test here
