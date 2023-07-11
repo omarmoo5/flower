@@ -1,3 +1,5 @@
+> :warning: **Experimental Code**: The code is not suitable for production use due to issues with randomness generation!
+
 # Flower: A Friendly Federated Learning Framework
 
 <p align="center">
